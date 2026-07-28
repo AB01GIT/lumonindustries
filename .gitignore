@@ -1,0 +1,7 @@
+node_modules/
+
+# Verification artefacts: regenerate with `npm run smoke -- --shots`.
+tools/shots/
+tools/shots-mobile/
+tools/frame.png
+tools/*.log

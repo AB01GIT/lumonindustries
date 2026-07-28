@@ -1,0 +1,396 @@
+/* ==========================================================================
+   BASE — reset, design tokens, palettes, typography, shared primitives
+   ==========================================================================
+   The whole site runs on a small set of custom properties. Each scene declares
+   a `data-palette` and the scroll controller mirrors it onto <html data-theme>,
+   so the entire document (background, ink, rules, glows) cross-fades at once.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- reset --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ol,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* ---------------------------------------------------------------- tokens -- */
+:root {
+  /* Type */
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --font-serif: "Instrument Serif", Georgia, serif;
+
+  /* Fluid type scale (min 360px → max 1600px viewport) */
+  --step--2: clamp(0.62rem, 0.58rem + 0.2vw, 0.75rem);
+  --step--1: clamp(0.75rem, 0.7rem + 0.25vw, 0.9rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem);
+  --step-1: clamp(1.2rem, 1.05rem + 0.7vw, 1.6rem);
+  --step-2: clamp(1.6rem, 1.3rem + 1.4vw, 2.6rem);
+  --step-3: clamp(2.1rem, 1.5rem + 2.8vw, 4.2rem);
+  --step-4: clamp(2.8rem, 1.6rem + 5.4vw, 7rem);
+  --step-5: clamp(3.4rem, 1rem + 11vw, 13rem);
+
+  /* Rhythm */
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+  --rule: 1px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --dur-theme: 900ms;
+
+  /* Stacking order of the persistent layers */
+  --z-gl: 0;
+  --z-content: 10;
+  --z-film: 60;
+  --z-hud: 70;
+  --z-veil: 80;
+  --z-boot: 90;
+  --z-pointer: 100;
+
+  /* Palette: OUTIE — the world above. Cold, blue, nocturnal. */
+  --bg: #05080b;
+  --bg-2: #0a1017;
+  --fg: #dfe7ea;
+  --fg-dim: #7f8f97;
+  --fg-faint: #3d4a52;
+  --line: #1b262e;
+  --accent: #7fb4c8;
+  --accent-2: #2f6f8f;
+  --signal: #43d17c;
+  --alarm: #d1594f;
+  --grain-opacity: 0.055;
+  --scan-opacity: 0.16;
+  --vignette: 0.75;
+}
+
+/* Palette: INNIE — the severed floor. Fluorescent, clinical, endless. */
+[data-theme="innie"] {
+  --bg: #eef1ef;
+  --bg-2: #ffffff;
+  --fg: #10161a;
+  /* Darker than a typical "muted" grey: the severed floor is a bright
+     environment and the instrument panel has to stay readable on top of it. */
+  --fg-dim: #46545b;
+  --fg-faint: #94a1a6;
+  --line: #cdd5d5;
+  --accent: #12506e;
+  --accent-2: #6fa3b8;
+  --grain-opacity: 0.045;
+  --scan-opacity: 0.05;
+  --vignette: 0.42;
+}
+
+/* Palette: CRT — inside the refiner console. */
+[data-theme="crt"] {
+  --bg: #04141c;
+  --bg-2: #072230;
+  --fg: #cfeaf4;
+  --fg-dim: #6f9fb0;
+  --fg-faint: #2c5666;
+  --line: #12475c;
+  --accent: #57c7e8;
+  --accent-2: #1c6a86;
+  --grain-opacity: 0.07;
+  --scan-opacity: 0.3;
+  --vignette: 0.8;
+}
+
+/* Palette: PAPER — the handbook. Warm archival stock. */
+[data-theme="paper"] {
+  --bg: #e8e4da;
+  --bg-2: #f4f1e9;
+  --fg: #141310;
+  --fg-dim: #5c574c;
+  --fg-faint: #a9a294;
+  --line: #cbc4b4;
+  --accent: #123f5e;
+  --accent-2: #8a7f68;
+  --grain-opacity: 0.09;
+  --scan-opacity: 0.03;
+  --vignette: 0.5;
+}
+
+/* Palette: DARK — the break room. Almost no light at all. */
+[data-theme="dark"] {
+  --bg: #020304;
+  --bg-2: #08090a;
+  --fg: #cfd4d2;
+  --fg-dim: #6d7472;
+  --fg-faint: #2a2f2e;
+  --line: #141817;
+  --accent: #d9c98a;
+  --accent-2: #6a5f3c;
+  --grain-opacity: 0.1;
+  --scan-opacity: 0.22;
+  --vignette: 0.95;
+}
+
+/* ------------------------------------------------------------- document -- */
+html {
+  scroll-behavior: auto; /* Lenis owns scrolling */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-variation-settings: "wdth" 100, "wght" 400;
+  line-height: 1.5;
+  overflow-x: clip;
+  transition: background-color var(--dur-theme) var(--ease-in-out),
+    color var(--dur-theme) var(--ease-in-out);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* No pointer chrome while the custom cursor is active */
+body[data-pointer="custom"],
+body[data-pointer="custom"] * {
+  cursor: none;
+}
+
+/* Locked during boot + during hard scene transitions */
+body.is-loading,
+body.is-locked {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* --------------------------------------------------------------- canvas -- */
+#gl-stage {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-gl);
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out);
+}
+
+body.gl-ready #gl-stage {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------- main --- */
+main {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+.scene {
+  position: relative;
+  isolation: isolate;
+}
+
+/* ------------------------------------------------------- type primitives -- */
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Split-text scaffolding. Each line gets a clipping frame so characters can
+   be lifted in from below without bleeding into the neighbouring line. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em; /* room for descenders inside the mask */
+}
+
+.split-char,
+.split-word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.split-word {
+  white-space: nowrap;
+}
+
+/* Elements that JS animates start hidden, but only once JS has confirmed it
+   is alive — otherwise a script failure would leave a blank page. */
+body.js-ready [data-split],
+body.js-ready [data-reveal] {
+  visibility: hidden;
+}
+
+body.js-ready [data-split].is-prepared,
+body.js-ready [data-reveal].is-prepared {
+  visibility: visible;
+}
+
+/* --------------------------------------------------------- lumon marque -- */
+.mark {
+  width: 1.6em;
+  height: 1.6em;
+  overflow: visible;
+}
+
+.mark__tri {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.mark__dot {
+  fill: currentColor;
+}
+
+/* ---------------------------------------------------------- film layers -- */
+.film {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-film);
+  pointer-events: none;
+  mix-blend-mode: normal;
+}
+
+.film__grain {
+  position: absolute;
+  inset: -50%;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  transition: opacity var(--dur-theme) var(--ease-in-out);
+  will-change: transform;
+}
+
+.film__scanlines {
+  position: absolute;
+  inset: 0;
+  opacity: var(--scan-opacity);
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0 1px,
+    transparent 1px 3px
+  );
+  transition: opacity var(--dur-theme) var(--ease-in-out);
+}
+
+.film__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 90% at 50% 45%,
+    transparent 40%,
+    rgba(0, 0, 0, calc(var(--vignette) * 0.55)) 78%,
+    rgba(0, 0, 0, var(--vignette)) 100%
+  );
+  transition: background var(--dur-theme) var(--ease-in-out);
+}
+
+/* ------------------------------------------------------------- the veil -- */
+/* A single full-bleed sheet used for flashes, wipes and hard cuts. */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-veil);
+  pointer-events: none;
+  display: grid;
+  place-items: stretch;
+}
+
+.veil__sheet {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  opacity: 0;
+  transform-origin: 50% 100%;
+  will-change: opacity, transform;
+}
+
+/* ----------------------------------------------------------- utilities --- */
+.u-hidden {
+  display: none !important;
+}
+
+.noscript {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  padding: var(--gutter);
+  background: #05080b;
+  color: #dfe7ea;
+  text-align: center;
+}
+
+.noscript h1 {
+  font-size: var(--step-4);
+  letter-spacing: 0.2em;
+  font-variation-settings: "wdth" 88, "wght" 200;
+}
+
+/* --------------------------------------------------- reduced motion mode -- */
+@media (prefers-reduced-motion: reduce) {
+  .film__grain,
+  .film__scanlines {
+    display: none;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

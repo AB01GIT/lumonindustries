@@ -1,0 +1,258 @@
+/* ==========================================================================
+   RESPONSIVE — the facility reflows, but the mood does not
+   ==========================================================================
+   Breakpoints are content driven:
+   · 1200px  console + dossier proportions relax
+   · 1024px  two-column chapters stack
+   ·  760px  mobile: rail collapses, native pointer returns
+   ========================================================================== */
+
+/* -------------------------------------------------------------- 1200px --- */
+@media (max-width: 1200px) {
+  .mdr__pin {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  }
+
+  .ring {
+    right: -26vmin;
+    width: 92vmin;
+  }
+}
+
+/* -------------------------------------------------------------- 1024px --- */
+@media (max-width: 1024px) {
+  /* Refinement: console above, briefing below */
+  .mdr__pin {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-content: center;
+    gap: clamp(1rem, 3vh, 2rem);
+  }
+
+  .terminal__caption {
+    display: none;
+  }
+
+  .mdr__aside {
+    gap: 0.9rem;
+  }
+
+  .mdr__body {
+    max-width: none;
+  }
+
+  .mdr__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .mdr__stats li {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  /* Doctrine: ledger left, ring pushed behind as a texture */
+  .handbook__pin {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .handbook__ledger {
+    max-width: none;
+    align-self: start;
+    padding-top: clamp(1rem, 6vh, 4rem);
+  }
+
+  .ring {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: -44vmin;
+    translate: -50% 0;
+    width: 110vmin;
+    opacity: 0.85;
+  }
+
+  .handbook__kier {
+    max-width: 40ch;
+    bottom: auto;
+    top: 48%;
+  }
+
+  .credits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --------------------------------------------------------------- 760px --- */
+@media (max-width: 760px) {
+  :root {
+    --gutter: 1.15rem;
+  }
+
+  /* Native pointer on touch: the custom one is hidden by JS too */
+  .pointer {
+    display: none;
+  }
+
+  /* Chapter rail keeps only its numerals */
+  .rail__list {
+    display: none;
+  }
+
+  .rail {
+    left: 0.55rem;
+    height: 40vh;
+  }
+
+  .rail__track {
+    width: 2px;
+  }
+
+  .hud__meta {
+    display: none;
+  }
+
+  .hud__audio-text {
+    display: none;
+  }
+
+  .hud__hint span:not(.hud__hint-line) {
+    font-size: 0.55rem;
+  }
+
+  /* Shorter scroll distances so mobile doesn't feel endless */
+  .scene--descent {
+    height: 380svh;
+  }
+
+  .scene--corridor {
+    height: 400svh;
+  }
+
+  .scene--mdr {
+    height: 460svh;
+  }
+
+  .scene--personnel {
+    height: 520svh;
+  }
+
+  .scene--handbook {
+    height: 400svh;
+  }
+
+  .scene--breakroom {
+    height: 400svh;
+  }
+
+  .hero__specs div {
+    border-left: 0;
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .hero__quote {
+    font-size: var(--step-1);
+  }
+
+  /* The rail collapses to a bare track, so content reclaims the space. */
+  .mdr__pin,
+  .handbook__pin {
+    padding-inline: 0.6rem;
+  }
+
+  .personnel__head {
+    padding-inline: var(--gutter);
+  }
+
+  .handbook__kier {
+    left: var(--gutter);
+  }
+
+  .terminal__screen {
+    aspect-ratio: 4 / 3.6;
+  }
+
+  .terminal__bezel {
+    border-radius: 12px;
+    padding: 0.5rem;
+  }
+
+  .mdr__hint {
+    display: none;
+  }
+
+  .mdr__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mdr__stats span {
+    font-size: var(--step-0);
+  }
+
+  /* Personnel: cards fill the viewport width */
+  .dossier {
+    width: min(78vw, 22rem);
+  }
+
+  .track {
+    padding: 0 11vw;
+    gap: 1rem;
+  }
+
+  .personnel__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .personnel__count {
+    align-self: flex-end;
+  }
+
+  .wing {
+    width: min(74vw, 20rem);
+  }
+
+  .wing[data-side="left"],
+  .wing[data-side="right"] {
+    left: 50%;
+    right: auto;
+    translate: -50% 0;
+    text-align: center;
+  }
+
+  .statement p {
+    font-size: var(--step-1);
+  }
+
+  .credits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .boot__legal {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------ short viewport rescue --- */
+@media (max-height: 620px) and (min-width: 761px) {
+  .corridor__caption {
+    top: 3.5rem;
+  }
+
+  .hero__specs {
+    display: none;
+  }
+
+  .handbook__kier {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------ fine pointer only - */
+@media (hover: none) {
+  .pointer {
+    display: none;
+  }
+}

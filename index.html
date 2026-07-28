@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="outie">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#05080b" />
+    <title>LUMON INDUSTRIES — The Severed Floor</title>
+    <meta
+      name="description"
+      content="An interactive descent into Lumon Industries. A cinematic, scroll-driven tribute to the severed floor."
+    />
+
+    <!-- ============================== TYPEFACES ============================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ============================== STYLES ============================== -->
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/interface.css" />
+    <link rel="stylesheet" href="./css/scenes.css" />
+    <link rel="stylesheet" href="./css/responsive.css" />
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050809'/%3E%3Cpath d='M16 7 L25 25 H7 Z' fill='none' stroke='%23a9d6e5' stroke-width='2'/%3E%3C/svg%3E" />
+  </head>
+
+  <body class="is-loading">
+    <!-- =====================================================================
+         PERSISTENT LAYERS
+         WebGL canvas, film grain, transition veil and the fixed instrument
+         panel all live outside the scroll flow so they can survive scene
+         changes and be driven by a single global timeline.
+    ====================================================================== -->
+
+    <!-- WebGL stage: backdrop atmosphere, the infinite severed-floor corridor
+         and the particle constructs are all rendered here. -->
+    <canvas id="gl-stage" aria-hidden="true"></canvas>
+
+    <!-- Purely decorative surface treatments -->
+    <div class="film" aria-hidden="true">
+      <div class="film__grain"></div>
+      <div class="film__scanlines"></div>
+      <div class="film__vignette"></div>
+    </div>
+
+    <!-- Full-bleed flash / wipe element used for scene punctuation -->
+    <div class="veil" aria-hidden="true"><span class="veil__sheet"></span></div>
+
+    <!-- Custom pointer -->
+    <div class="pointer" aria-hidden="true">
+      <div class="pointer__ring"><span class="pointer__label"></span></div>
+      <div class="pointer__dot"></div>
+    </div>
+
+    <!-- =====================================================================
+         PRELOADER — Lumon terminal boot sequence
+    ====================================================================== -->
+    <div class="boot" id="boot">
+      <div class="boot__frame">
+        <header class="boot__head">
+          <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+            <path class="mark__tri" d="M20 8 L31 30 H9 Z" />
+            <circle class="mark__dot" cx="20" cy="24" r="2.4" />
+          </svg>
+          <span class="boot__brand">LUMON&nbsp;INDUSTRIES</span>
+        </header>
+
+        <div class="boot__log" role="status" aria-live="polite">
+          <p data-boot-line>&gt; ESTABLISHING SECURE UPLINK</p>
+          <p data-boot-line>&gt; VERIFYING BADGE // MDR-0417</p>
+          <p data-boot-line>&gt; LOADING KIER PROTOCOL v9.09</p>
+          <p data-boot-line>&gt; CALIBRATING SEVERANCE BARRIER</p>
+          <p data-boot-line>&gt; SUBJECT CONSCIOUSNESS: PARTITIONED</p>
+        </div>
+
+        <div class="boot__meter">
+          <div class="boot__bar"><span class="boot__fill"></span></div>
+          <div class="boot__count"><span data-boot-count>0</span><i>%</i></div>
+        </div>
+
+        <p class="boot__legal">
+          By proceeding you consent to the bifurcation of memory as described in
+          appendix&nbsp;K of the employee handbook.
+        </p>
+      </div>
+
+      <button
+        class="enter"
+        id="enter"
+        type="button"
+        data-cursor="hold"
+        data-magnet="0.22"
+        hidden
+      >
+        <span class="enter__ring"></span>
+        <span class="enter__text">BEGIN&nbsp;SHIFT</span>
+      </button>
+    </div>
+
+    <!-- =====================================================================
+         INSTRUMENT PANEL (fixed HUD)
+    ====================================================================== -->
+    <div class="hud" id="hud" aria-hidden="true">
+      <div class="hud__top">
+        <a class="hud__brand" href="#hero" data-cursor="link">
+          <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+            <path class="mark__tri" d="M20 8 L31 30 H9 Z" />
+            <circle class="mark__dot" cx="20" cy="24" r="2.4" />
+          </svg>
+          <span>LUMON</span>
+        </a>
+        <div class="hud__meta">
+          <span data-hud-floor>SEVERED FLOOR</span>
+          <span class="hud__sep">/</span>
+          <span data-hud-clock>--:--:--</span>
+        </div>
+        <button class="hud__audio" id="audio-toggle" type="button" data-cursor="hold" aria-label="Toggle ambience">
+          <span class="bars"><i></i><i></i><i></i><i></i></span>
+          <span class="hud__audio-text">AMBIENCE</span>
+        </button>
+      </div>
+
+      <!-- Chapter rail -->
+      <nav class="rail">
+        <ol class="rail__list">
+          <li class="rail__item" data-rail="hero"><span>00</span><em>Induction</em></li>
+          <li class="rail__item" data-rail="descent"><span>01</span><em>Descent</em></li>
+          <li class="rail__item" data-rail="corridor"><span>02</span><em>The Floor</em></li>
+          <li class="rail__item" data-rail="macrodata"><span>03</span><em>Refinement</em></li>
+          <li class="rail__item" data-rail="personnel"><span>04</span><em>Personnel</em></li>
+          <li class="rail__item" data-rail="handbook"><span>05</span><em>Doctrine</em></li>
+          <li class="rail__item" data-rail="breakroom"><span>06</span><em>Compliance</em></li>
+          <li class="rail__item" data-rail="outro"><span>07</span><em>Reintegration</em></li>
+        </ol>
+        <div class="rail__track"><span class="rail__thumb"></span></div>
+      </nav>
+
+      <div class="hud__bottom">
+        <div class="hud__hint" data-hud-hint>
+          <span class="hud__hint-line"></span>
+          <span>SCROLL TO DESCEND</span>
+        </div>
+        <div class="hud__depth">
+          <span data-hud-depth>000</span><i>M BELOW GRADE</i>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================================
+         MAIN — the journey
+    ====================================================================== -->
+    <main id="journey">
+      <!-- ---------------------------------------------------------------
+           00 · INDUCTION
+      ---------------------------------------------------------------- -->
+      <section
+        class="scene scene--hero"
+        id="hero"
+        data-scene="hero"
+        data-palette="outie"
+        aria-label="Chapter 00 — Induction"
+      >
+        <div class="hero__stack">
+          <p class="hero__eyebrow" data-reveal="lines">
+            <span>A wholly owned experience of Lumon Industries</span>
+          </p>
+
+          <h1 class="hero__title" data-split="chars" aria-label="Severance">Severance</h1>
+
+          <div class="hero__rule" aria-hidden="true"><span></span></div>
+
+          <blockquote class="hero__quote" data-split="words">
+            Who you are outside doesn’t matter here.
+          </blockquote>
+
+          <dl class="hero__specs">
+            <div><dt>Facility</dt><dd>Kier, PE</dd></div>
+            <div><dt>Division</dt><dd>Macrodata Refinement</dd></div>
+            <div><dt>Status</dt><dd data-hero-status>Awaiting descent</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero__glow" aria-hidden="true"></div>
+      </section>
+
+      <!-- ---------------------------------------------------------------
+           01 · DESCENT — pinned elevator sequence, the severance barrier
+      ---------------------------------------------------------------- -->
+      <!-- No `data-palette` here on purpose: this chapter owns the palette
+           itself, because the switch happens mid-scene at the exact frame the
+           severance barrier closes. -->
+      <section
+        class="scene scene--descent"
+        id="descent"
+        data-scene="descent"
+        aria-label="Chapter 01 — The Descent"
+      >
+        <div class="descent__pin">
+          <!-- Elevator car interior -->
+          <div class="lift" aria-hidden="true">
+            <div class="lift__wall lift__wall--l"></div>
+            <div class="lift__wall lift__wall--r"></div>
+            <div class="lift__ceiling"></div>
+            <div class="lift__doors">
+              <span class="lift__door lift__door--l"></span>
+              <span class="lift__door lift__door--r"></span>
+              <span class="lift__seam"></span>
+            </div>
+            <div class="lift__panel">
+              <span class="lift__arrow">▼</span>
+              <span class="lift__floor" data-lift-floor>G</span>
+            </div>
+            <div class="lift__streaks">
+              <i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+          </div>
+
+          <!-- Barrier readout -->
+          <div class="barrier">
+            <p class="barrier__label" data-barrier-label>SEVERANCE BARRIER</p>
+            <div class="barrier__wave">
+              <svg viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true">
+                <path data-barrier-path d="M0 60 H600" />
+                <path data-barrier-path-ghost d="M0 60 H600" />
+              </svg>
+            </div>
+            <p class="barrier__note" data-barrier-note>OUTIE CONSCIOUSNESS: ACTIVE</p>
+          </div>
+
+          <h2 class="descent__word" data-descent-word aria-hidden="true">
+            <span>PLEASE</span><span>ENJOY</span><span>EACH</span><span>FLOOR</span><span>EQUALLY</span>
+          </h2>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------
+           02 · THE SEVERED FLOOR — WebGL corridor dolly
+      ---------------------------------------------------------------- -->
+      <section
+        class="scene scene--corridor"
+        id="corridor"
+        data-scene="corridor"
+        data-palette="innie"
+        aria-label="Chapter 02 — The Floor"
+      >
+        <div class="corridor__pin">
+          <div class="corridor__caption">
+            <p class="corridor__kicker" data-corridor-kicker>FLOOR PLAN — SUBLEVEL</p>
+            <h2 class="corridor__title" data-split="chars">The Severed Floor</h2>
+          </div>
+
+          <!-- Wing markers that pass the camera -->
+          <ul class="wings">
+            <li class="wing" data-wing="0" data-side="left">
+              <span class="wing__idx">W-01</span>
+              <span class="wing__name">Optics &amp; Design</span>
+              <span class="wing__meta">Occupancy 4 · Palette control</span>
+            </li>
+            <li class="wing" data-wing="1" data-side="right">
+              <span class="wing__idx">W-02</span>
+              <span class="wing__name">Wellness</span>
+              <span class="wing__meta">By appointment · Do not linger</span>
+            </li>
+            <li class="wing" data-wing="2" data-side="left">
+              <span class="wing__idx">W-03</span>
+              <span class="wing__name">Perpetuity Wing</span>
+              <span class="wing__meta">Kier lives · Guided tours 14:00</span>
+            </li>
+            <li class="wing" data-wing="3" data-side="right">
+              <span class="wing__idx">W-04</span>
+              <span class="wing__name">Music Dance Experience</span>
+              <span class="wing__meta">Reward tier II · 5 minutes</span>
+            </li>
+          </ul>
+
+          <!-- Terminal door at the end of the hallway -->
+          <div class="door">
+            <div class="door__leaf">
+              <span class="door__plate">
+                <em>M · D · R</em>
+                <strong data-split="chars">Macrodata Refinement</strong>
+              </span>
+              <span class="door__handle"></span>
+            </div>
+            <p class="door__prompt" data-door-prompt>KEEP SCROLLING TO ENTER</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------
+           03 · MACRODATA REFINEMENT — interactive terminal
+      ---------------------------------------------------------------- -->
+      <section
+        class="scene scene--mdr"
+        id="macrodata"
+        data-scene="macrodata"
+        data-palette="crt"
+        aria-label="Chapter 03 — Macrodata Refinement"
+      >
+        <div class="mdr__pin">
+          <figure class="terminal">
+            <div class="terminal__bezel">
+              <div class="terminal__screen">
+                <canvas id="mdr-canvas" role="img"
+                  aria-label="A field of drifting numbers being refined into bins."></canvas>
+
+                <!-- CRT overlays -->
+                <div class="terminal__crt" aria-hidden="true"></div>
+                <div class="terminal__flare" aria-hidden="true"></div>
+
+                <!-- Screen chrome -->
+                <header class="terminal__head">
+                  <span>FILE&nbsp;<b data-mdr-file>0×TUMWATER</b></span>
+                  <span data-mdr-progress>0% COMPLETE</span>
+                </header>
+
+                <footer class="terminal__bins">
+                  <div class="bin" data-bin="0"><span class="bin__lid"></span><em>01</em></div>
+                  <div class="bin" data-bin="1"><span class="bin__lid"></span><em>02</em></div>
+                  <div class="bin" data-bin="2"><span class="bin__lid"></span><em>03</em></div>
+                  <div class="bin" data-bin="3"><span class="bin__lid"></span><em>04</em></div>
+                  <div class="bin" data-bin="4"><span class="bin__lid"></span><em>05</em></div>
+                </footer>
+
+                <div class="terminal__toast" data-mdr-toast>QUOTA MET</div>
+              </div>
+            </div>
+            <figcaption class="terminal__caption">
+              Refiner console · Model K‑1972 · Property of Lumon
+            </figcaption>
+          </figure>
+
+          <aside class="mdr__aside">
+            <h2 class="mdr__title" data-split="lines">
+              The work is mysterious<br />and important.
+            </h2>
+            <p class="mdr__body" data-reveal="fade">
+              Scary numbers hide inside the field. You will know them not by
+              sight but by the feeling they produce. Sort them into their bins.
+              Do not ask what they mean.
+            </p>
+            <ul class="mdr__stats">
+              <li><span data-mdr-stat="refined">0</span><em>Groups refined</em></li>
+              <li><span data-mdr-stat="quota">0</span><em>% of quota</em></li>
+              <li><span data-mdr-stat="tenure">0</span><em>Days severed</em></li>
+            </ul>
+            <p class="mdr__hint" data-cursor-hint>Move your pointer across the field</p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------
+           04 · PERSONNEL — horizontal dossier gallery
+      ---------------------------------------------------------------- -->
+      <section
+        class="scene scene--personnel"
+        id="personnel"
+        data-scene="personnel"
+        data-palette="innie"
+        aria-label="Chapter 04 — Personnel"
+      >
+        <div class="personnel__pin">
+          <header class="personnel__head">
+            <p class="personnel__kicker">Department roster</p>
+            <h2 class="personnel__title" data-split="chars">Personnel</h2>
+            <span class="personnel__count"><b data-personnel-index>01</b>/06</span>
+          </header>
+
+          <div class="track" data-track>
+            <article class="dossier" data-dossier data-tone="a">
+              <div class="dossier__portrait" data-portrait="mark" aria-hidden="true">
+                <span class="dossier__initials">MS</span>
+                <span class="dossier__halftone"></span>
+              </div>
+              <div class="dossier__body">
+                <p class="dossier__role">Refiner · Team Lead</p>
+                <h3 class="dossier__name">Mark&nbsp;S.</h3>
+                <ul class="dossier__lines">
+                  <li><b>Tenure</b><span>2 years</span></li>
+                  <li><b>Disposition</b><span>Compliant, grieving</span></li>
+                  <li><b>Note</b><span>Promoted after Petey’s retirement</span></li>
+                </ul>
+                <p class="dossier__quote">“I’m a person. My actions are my own.”</p>
+              </div>
+              <span class="dossier__stamp">FILE OPEN</span>
+            </article>
+
+            <article class="dossier" data-dossier data-tone="b">
+              <div class="dossier__portrait" data-portrait="helly" aria-hidden="true">
+                <span class="dossier__initials">HR</span>
+                <span class="dossier__halftone"></span>
+              </div>
+              <div class="dossier__body">
+                <p class="dossier__role">Refiner · New hire</p>
+                <h3 class="dossier__name">Helly&nbsp;R.</h3>
+                <ul class="dossier__lines">
+                  <li><b>Tenure</b><span>4 days</span></li>
+                  <li><b>Disposition</b><span>Resistant</span></li>
+                  <li><b>Note</b><span>Nine resignation requests denied</span></li>
+                </ul>
+                <p class="dossier__quote">“I want to quit.”</p>
+              </div>
+              <span class="dossier__stamp">FLAGGED</span>
+            </article>
+
+            <article class="dossier" data-dossier data-tone="c">
+              <div class="dossier__portrait" data-portrait="irving" aria-hidden="true">
+                <span class="dossier__initials">IB</span>
+                <span class="dossier__halftone"></span>
+              </div>
+              <div class="dossier__body">
+                <p class="dossier__role">Refiner · Handbook devotee</p>
+                <h3 class="dossier__name">Irving&nbsp;B.</h3>
+                <ul class="dossier__lines">
+                  <li><b>Tenure</b><span>Unknown</span></li>
+                  <li><b>Disposition</b><span>Devout, watchful</span></li>
+                  <li><b>Note</b><span>Recurring vision: black ink</span></li>
+                </ul>
+                <p class="dossier__quote">“The remains of the day are Kier’s.”</p>
+              </div>
+              <span class="dossier__stamp">UNDER REVIEW</span>
+            </article>
+
+            <article class="dossier" data-dossier data-tone="d">
+              <div class="dossier__portrait" data-portrait="dylan" aria-hidden="true">
+                <span class="dossier__initials">DG</span>
+                <span class="dossier__halftone"></span>
+              </div>
+              <div class="dossier__body">
+                <p class="dossier__role">Refiner · Top performer</p>
+                <h3 class="dossier__name">Dylan&nbsp;G.</h3>
+                <ul class="dossier__lines">
+                  <li><b>Tenure</b><span>3 years</span></li>
+                  <li><b>Disposition</b><span>Incentive driven</span></li>
+                  <li><b>Note</b><span>Holds record for finger traps earned</span></li>
+                </ul>
+                <p class="dossier__quote">“There’s a waffle party. It’s real.”</p>
+              </div>
+              <span class="dossier__stamp">COMMENDED</span>
+            </article>
+
+            <article class="dossier" data-dossier data-tone="e">
+              <div class="dossier__portrait" data-portrait="cobel" aria-hidden="true">
+                <span class="dossier__initials">HC</span>
+                <span class="dossier__halftone"></span>
+              </div>
+              <div class="dossier__body">
+                <p class="dossier__role">Management · Floor manager</p>
+                <h3 class="dossier__name">Ms.&nbsp;Cobel</h3>
+                <ul class="dossier__lines">
+                  <li><b>Tenure</b><span>Classified</span></li>
+                  <li><b>Disposition</b><span>Doctrinal, surveilling</span></li>
+                  <li><b>Note</b><span>Believes she serves Kier directly</span></li>
+                </ul>
+                <p class="dossier__quote">“The barrier holds. It always holds.”</p>
+              </div>
+              <span class="dossier__stamp">RESTRICTED</span>
+            </article>
+
+            <article class="dossier" data-dossier data-tone="f">
+              <div class="dossier__portrait" data-portrait="milchick" aria-hidden="true">
+                <span class="dossier__initials">SM</span>
+                <span class="dossier__halftone"></span>
+              </div>
+              <div class="dossier__body">
+                <p class="dossier__role">Management · Morale</p>
+                <h3 class="dossier__name">Mr.&nbsp;Milchick</h3>
+                <ul class="dossier__lines">
+                  <li><b>Tenure</b><span>Classified</span></li>
+                  <li><b>Disposition</b><span>Immaculate, unreadable</span></li>
+                  <li><b>Note</b><span>Administers all rewards personally</span></li>
+                </ul>
+                <p class="dossier__quote">“Try to enjoy the melon bar.”</p>
+              </div>
+              <span class="dossier__stamp">EXEMPLARY</span>
+            </article>
+          </div>
+
+          <div class="personnel__progress"><span data-personnel-bar></span></div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------
+           05 · DOCTRINE — the nine core principles
+      ---------------------------------------------------------------- -->
+      <section
+        class="scene scene--handbook"
+        id="handbook"
+        data-scene="handbook"
+        data-palette="paper"
+        aria-label="Chapter 05 — Doctrine"
+      >
+        <div class="handbook__pin">
+          <div class="handbook__ledger">
+            <p class="handbook__kicker">Employee handbook · Revision IX</p>
+            <h2 class="handbook__display" data-tenet-display>Vision</h2>
+            <p class="handbook__gloss" data-tenet-gloss>
+              To see the whole of the work, and to be seen working.
+            </p>
+            <span class="handbook__index"><b data-tenet-index>01</b>/09</span>
+          </div>
+
+          <!-- Rotating ring of tenets -->
+          <div class="ring" data-ring aria-hidden="true">
+            <ul class="ring__list">
+              <li data-tenet="Vision" data-gloss="To see the whole of the work, and to be seen working.">Vision</li>
+              <li data-tenet="Verve" data-gloss="Enthusiasm is a duty, not a mood.">Verve</li>
+              <li data-tenet="Wit" data-gloss="A sharpened mind cuts its own leash. Sharpen carefully.">Wit</li>
+              <li data-tenet="Cheer" data-gloss="Smile as though the ceiling were watching. It is.">Cheer</li>
+              <li data-tenet="Humility" data-gloss="You are a hand. The hand does not question the arm.">Humility</li>
+              <li data-tenet="Benevolence" data-gloss="Kindness costs the company nothing and earns it everything.">Benevolence</li>
+              <li data-tenet="Nimbleness" data-gloss="Change your shape before you are reshaped.">Nimbleness</li>
+              <li data-tenet="Probity" data-gloss="Confess the small sins loudly to conceal the large ones.">Probity</li>
+              <li data-tenet="Wiles" data-gloss="The founder permits cunning in service of the founder.">Wiles</li>
+            </ul>
+            <div class="ring__marker"></div>
+          </div>
+
+          <blockquote class="handbook__kier" data-kier>
+            <p data-split="words">Tame in me the tempers four that seek to render thy soul impure.</p>
+            <footer>— Kier Eagan, <cite>The You You Are</cite></footer>
+          </blockquote>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------
+           06 · COMPLIANCE — the break room
+      ---------------------------------------------------------------- -->
+      <section
+        class="scene scene--breakroom"
+        id="breakroom"
+        data-scene="breakroom"
+        data-palette="dark"
+        aria-label="Chapter 06 — The Break Room"
+      >
+        <div class="breakroom__pin">
+          <div class="breakroom__lamp" aria-hidden="true"></div>
+
+          <header class="breakroom__head">
+            <p class="breakroom__kicker" data-break-kicker>Break room · Sublevel B</p>
+            <h2 class="breakroom__title" data-split="chars">Compliance</h2>
+          </header>
+
+          <div class="statement" data-statement>
+            <p data-line>I am sorry for the harm I have caused this world.</p>
+            <p data-line>None may atone for my actions but me,</p>
+            <p data-line>and only in me shall their stain live on.</p>
+            <p data-line>I am thankful to have been caught,</p>
+            <p data-line>my fall cut short by those with wizened hands.</p>
+            <p data-line>All I can be is sorry, and that is all that I am.</p>
+          </div>
+
+          <div class="breakroom__verdict">
+            <p data-verdict>PLEASE TRY AGAIN</p>
+            <div class="breakroom__meter"><span data-sincerity></span></div>
+            <p class="breakroom__gauge">SINCERITY <b data-sincerity-value>18</b>%</p>
+          </div>
+
+          <div class="breakroom__chair" aria-hidden="true">
+            <span></span><span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------
+           07 · REINTEGRATION — outro
+      ---------------------------------------------------------------- -->
+      <section
+        class="scene scene--outro"
+        id="outro"
+        data-scene="outro"
+        data-palette="outie"
+        aria-label="Chapter 07 — Egress"
+      >
+        <div class="outro__pin">
+          <p class="outro__kicker" data-reveal="fade">End of shift</p>
+          <h2 class="outro__title" data-split="chars">Please enjoy each&nbsp;number equally</h2>
+
+          <div class="outro__lines">
+            <p data-split="words">A handshake is available upon request.</p>
+            <p data-split="words">Your outie is waiting in the elevator.</p>
+          </div>
+
+          <button
+            class="lift-up"
+            id="return-top"
+            type="button"
+            data-cursor="hold"
+            data-magnet="0.18"
+          >
+            <span class="lift-up__label">RETURN TO YOUR OUTIE</span>
+            <span class="lift-up__arrow">▲</span>
+            <span class="lift-up__fill"></span>
+          </button>
+        </div>
+
+        <footer class="credits">
+          <div class="credits__col">
+            <h3>Lumon Industries</h3>
+            <p>Kier, PE · Founded 1865</p>
+            <p>Board approval pending, eternally.</p>
+          </div>
+          <div class="credits__col">
+            <h3>About this build</h3>
+            <p>An unofficial, non-commercial fan tribute to the series <em>Severance</em>.</p>
+            <p>All trademarks belong to their respective owners.</p>
+          </div>
+          <div class="credits__col">
+            <h3>Instrumentation</h3>
+            <p>GSAP · ScrollTrigger · Lenis · Three.js · Canvas 2D · Web Audio</p>
+            <p>Hand-written HTML, CSS &amp; JavaScript. No images.</p>
+          </div>
+          <p class="credits__mark">
+            <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+              <path class="mark__tri" d="M20 8 L31 30 H9 Z" />
+              <circle class="mark__dot" cx="20" cy="24" r="2.4" />
+            </svg>
+            <span>PRAISE KIER</span>
+          </p>
+        </footer>
+      </section>
+    </main>
+
+    <!-- =====================================================================
+         SCRIPTS
+    ====================================================================== -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/CustomEase.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js" defer></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+        }
+      }
+    </script>
+    <script type="module" src="./js/main.js"></script>
+
+    <noscript>
+      <div class="noscript">
+        <h1>SEVERANCE</h1>
+        <p>
+          This experience requires JavaScript. Please inform your manager that
+          your terminal is non-compliant.
+        </p>
+      </div>
+    </noscript>
+  </body>
+</html>

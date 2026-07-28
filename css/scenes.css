@@ -1,0 +1,1586 @@
+/* ==========================================================================
+   SCENES — one block per chapter of the descent
+   ==========================================================================
+   Pinning strategy: every long chapter is a tall <section> whose direct child
+   `.*__pin` is `position: sticky`. ScrollTrigger is then only responsible for
+   *progress*, never for layout. This keeps the DOM stable, avoids pin-spacer
+   reflows and plays nicely with Lenis' native smooth scrolling.
+   ========================================================================== */
+
+/* ======================================================= 00 · INDUCTION == */
+.scene--hero {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--gutter) * 2) var(--gutter);
+  overflow: hidden;
+}
+
+.hero__stack {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.1rem, 2.6vh, 2.2rem);
+  text-align: center;
+  max-width: 90rem;
+  width: 100%;
+}
+
+.hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.hero__title {
+  font-size: var(--step-5);
+  line-height: 0.86;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-variation-settings: "wdth" 74, "wght" 180;
+  white-space: nowrap;
+}
+
+/* Per-character transform origin lets the title "breathe" outward */
+.hero__title .split-char {
+  transform-origin: 50% 100%;
+}
+
+.hero__rule {
+  width: min(70vw, 46rem);
+  height: var(--rule);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.hero__rule span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  scale: 0 1;
+}
+
+.hero__quote {
+  font-family: var(--font-serif);
+  font-size: var(--step-2);
+  font-style: italic;
+  line-height: 1.25;
+  color: var(--fg);
+  max-width: 34ch;
+  text-wrap: balance;
+}
+
+.hero__specs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(1.25rem, 5vw, 4.5rem);
+  margin-top: clamp(1rem, 4vh, 3rem);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero__specs div {
+  display: grid;
+  gap: 0.35rem;
+  text-align: left;
+  padding-left: 0.9rem;
+  border-left: var(--rule) solid var(--line);
+}
+
+.hero__specs dt {
+  color: var(--fg-faint);
+}
+
+.hero__specs dd {
+  color: var(--fg);
+}
+
+.hero__glow {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  translate: -50% -50%;
+  width: min(120vw, 90rem);
+  aspect-ratio: 2 / 1;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    transparent 70%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ========================================================= 01 · DESCENT == */
+.scene--descent {
+  height: 520svh;
+}
+
+.descent__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+}
+
+/* --- elevator car ---------------------------------------------------- */
+.lift {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.lift__wall {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  width: 34vw;
+  background: linear-gradient(
+    100deg,
+    #05080b 0%,
+    #131b22 35%,
+    #1d272f 55%,
+    #0a1015 100%
+  );
+  opacity: 0;
+}
+
+.lift__wall--l {
+  left: 0;
+  transform: rotateY(24deg) translateZ(-120px);
+  transform-origin: left center;
+}
+
+.lift__wall--r {
+  right: 0;
+  transform: rotateY(-24deg) translateZ(-120px);
+  transform-origin: right center;
+}
+
+/* The car's own dome light. Sits above the doors: it is inside with us. */
+.lift__ceiling {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  translate: -50% 0;
+  z-index: 4;
+  width: 58vw;
+  height: 22vh;
+  /* Radial, not linear: a blurred rectangle keeps its corners and reads as a
+     bright panel rather than as light. */
+  background: radial-gradient(
+    ellipse 60% 100% at 50% 0%,
+    color-mix(in srgb, var(--accent) 46%, transparent),
+    color-mix(in srgb, var(--accent) 12%, transparent) 45%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  opacity: 0;
+}
+
+/* Passing floor lights, read as reflections sweeping DOWN the door faces.
+   These have to sit above the doors — light lands on a surface, it does not
+   hide behind it — which is also the only way any motion is visible once the
+   car is sealed. */
+.lift__streaks {
+  position: absolute;
+  inset: -25% 0;
+  z-index: 5;
+  overflow: hidden;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.lift__streaks i {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  height: 10px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--accent) 30%, transparent) 18%,
+    color-mix(in srgb, var(--accent) 72%, transparent) 50%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 82%,
+    transparent
+  );
+  filter: blur(5px);
+  will-change: transform;
+}
+
+.lift__streaks i:nth-child(1) { top: 4%; height: 4px; opacity: 0.5; }
+.lift__streaks i:nth-child(2) { top: 21%; height: 16px; opacity: 0.85; }
+.lift__streaks i:nth-child(3) { top: 38%; height: 6px; opacity: 0.6; }
+.lift__streaks i:nth-child(4) { top: 55%; height: 22px; opacity: 0.7; }
+.lift__streaks i:nth-child(5) { top: 71%; height: 5px; opacity: 0.45; }
+.lift__streaks i:nth-child(6) { top: 87%; height: 12px; opacity: 0.8; }
+
+/* --- doors ----------------------------------------------------------- */
+.lift__doors {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+/* Slightly over half each, so the leaves overlap by a hair at the centre line.
+   Anything under 50% leaves a permanent gap on the seam, and the lit shaft
+   behind reads as a black stripe painted down the middle of the frame. */
+.lift__door {
+  position: absolute;
+  top: 0;
+  width: 50.4%;
+  height: 100%;
+  background: linear-gradient(
+      92deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 22%,
+      transparent 78%,
+      rgba(0, 0, 0, 0.35) 100%
+    ),
+    linear-gradient(180deg, #1a232a 0%, #0d1418 48%, #151d23 100%);
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.7);
+}
+
+.lift__door::after {
+  /* brushed metal striations */
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.035) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+/* Off-canvas start positions are applied by GSAP (xPercent) rather than CSS so
+   that the transform stack has a single owner. */
+.lift__door--l {
+  left: 0;
+}
+
+.lift__door--r {
+  right: 0;
+}
+
+.lift__seam {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  translate: -50% 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--accent) 80%, transparent),
+    transparent
+  );
+  opacity: 0;
+}
+
+/* --- floor indicator ------------------------------------------------- */
+.lift__panel {
+  position: absolute;
+  left: 50%;
+  top: clamp(4rem, 12vh, 9rem);
+  translate: -50% 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 0.7rem 1.6rem;
+  border: var(--rule) solid var(--line);
+  background: rgba(4, 8, 11, 0.55);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-mono);
+  opacity: 0;
+}
+
+.lift__arrow {
+  color: var(--signal);
+  font-size: var(--step--1);
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.lift__floor {
+  font-size: var(--step-2);
+  letter-spacing: 0.1em;
+  min-width: 3.2ch;
+  text-align: center;
+  color: var(--fg);
+}
+
+/* --- severance barrier readout --------------------------------------- */
+.barrier {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  justify-items: center;
+  gap: 1.1rem;
+  width: min(92vw, 44rem);
+  text-align: center;
+  opacity: 0;
+}
+
+.barrier__label,
+.barrier__note {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.barrier__note {
+  letter-spacing: 0.24em;
+  color: var(--accent);
+}
+
+.barrier__wave {
+  width: 100%;
+  height: clamp(60px, 14vh, 120px);
+}
+
+.barrier__wave svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.barrier__wave path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The ghost trace doubles as the glow: a thick, low-opacity stroke costs far
+   less than an SVG filter on a path that is rebuilt every frame. */
+.barrier__wave path[data-barrier-path-ghost] {
+  stroke: var(--alarm);
+  stroke-width: 4;
+  opacity: 0.3;
+}
+
+/* --- the word that flies past --------------------------------------- */
+.descent__word {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.descent__word span {
+  position: absolute;
+  font-size: var(--step-4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-variation-settings: "wdth" 70, "wght" 300;
+  color: #f2f7f8;
+  opacity: 0;
+  white-space: nowrap;
+  text-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+}
+
+/* Scattered across the frame so the words feel like objects rushing past the
+   visitor's face rather than a slideshow in the middle of the screen. */
+.descent__word span:nth-child(1) { translate: -52% -150%; }
+.descent__word span:nth-child(2) { translate: 46% 190%; }
+.descent__word span:nth-child(3) { translate: -30% 250%; }
+.descent__word span:nth-child(4) { translate: 54% -220%; }
+.descent__word span:nth-child(5) { translate: -6% -40%; }
+
+/* ==================================================== 02 · SEVERED FLOOR = */
+.scene--corridor {
+  height: 560svh;
+}
+
+.corridor__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.corridor__caption {
+  position: absolute;
+  left: 50%;
+  top: clamp(4.5rem, 14vh, 9rem);
+  translate: -50% 0;
+  width: min(92vw, 60rem);
+  text-align: center;
+  z-index: 3;
+}
+
+/* Full ink, not a muted grey: this caption sits on a blown-out white ceiling
+   and a dimmed colour disappears into it. Hierarchy comes from the opacity the
+   scene timeline settles on instead. */
+.corridor__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-bottom: 0.9rem;
+}
+
+.corridor__title {
+  font-size: var(--step-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-variation-settings: "wdth" 80, "wght" 250;
+}
+
+/* --- wing markers ---------------------------------------------------- */
+.wings {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.wing {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  gap: 0.4rem;
+  width: min(38vw, 24rem);
+  padding: 1rem 1.2rem;
+  border-top: var(--rule) solid var(--fg);
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.wing[data-side="left"] {
+  left: clamp(1.5rem, 8vw, 9rem);
+  text-align: left;
+}
+
+.wing[data-side="right"] {
+  right: clamp(1.5rem, 8vw, 9rem);
+  text-align: right;
+}
+
+.wing__idx {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+
+.wing__name {
+  font-size: var(--step-1);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-variation-settings: "wdth" 86, "wght" 400;
+  line-height: 1.1;
+}
+
+.wing__meta {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.08em;
+  color: var(--fg-dim);
+}
+
+/* --- the MDR door --------------------------------------------------- */
+.door {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  gap: 1.6rem;
+  opacity: 0;
+  scale: 0.6;
+  will-change: transform, opacity;
+}
+
+.door__leaf {
+  position: relative;
+  width: min(70vw, 26rem);
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(170deg, #f7f9f8, #dfe5e3 60%, #cdd5d2);
+  border: var(--rule) solid var(--line);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.22), inset 0 0 0 10px rgba(255, 255, 255, 0.6);
+  display: grid;
+  place-items: center;
+}
+
+.door__plate {
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
+  padding: 1.1rem 1.4rem;
+  border: var(--rule) solid #10161a;
+  color: #10161a;
+  text-align: center;
+  background: #eef1ef;
+}
+
+.door__plate em {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: var(--step--2);
+  letter-spacing: 0.45em;
+  opacity: 0.6;
+}
+
+.door__plate strong {
+  display: block;
+  font-size: var(--step-1);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-variation-settings: "wdth" 82, "wght" 500;
+  line-height: 1;
+}
+
+.door__handle {
+  position: absolute;
+  right: 8%;
+  top: 52%;
+  width: 12px;
+  height: 58px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #9aa7a4, #dfe6e3 40%, #7f8c89);
+}
+
+.door__prompt {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+/* ====================================================== 03 · REFINEMENT == */
+.scene--mdr {
+  height: 620svh;
+}
+
+.mdr__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  /* The extra inline start padding keeps content clear of the chapter rail. */
+  padding: clamp(4.5rem, 12vh, 7rem) var(--gutter) clamp(3rem, 8vh, 5rem)
+    max(var(--gutter), 11rem);
+}
+
+/* --- the console ----------------------------------------------------- */
+.terminal {
+  position: relative;
+  width: 100%;
+  display: grid;
+  gap: 0.9rem;
+  will-change: transform;
+}
+
+.terminal__bezel {
+  position: relative;
+  padding: clamp(0.7rem, 1.4vw, 1.4rem);
+  border-radius: 18px;
+  background: linear-gradient(160deg, #d7d2c4, #b6b1a4 55%, #918d81);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.terminal__screen {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  overflow: hidden;
+  background: radial-gradient(120% 120% at 50% 40%, #0a3245 0%, #04141c 65%, #02090d 100%);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(87, 199, 232, 0.16);
+}
+
+#mdr-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.terminal__crt {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.28) 0 1px,
+      transparent 1px 3px
+    ),
+    radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+.terminal__flare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    118deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.045) 46%,
+    rgba(255, 255, 255, 0.09) 50%,
+    transparent 58%
+  );
+}
+
+.terminal__head,
+.terminal__bins {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem clamp(0.8rem, 1.6vw, 1.4rem);
+  font-family: var(--font-mono);
+  font-size: clamp(0.5rem, 0.9vw, 0.72rem);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #7fc3da;
+  pointer-events: none;
+}
+
+.terminal__head {
+  top: 0;
+  border-bottom: var(--rule) solid rgba(87, 199, 232, 0.18);
+  background: linear-gradient(to bottom, rgba(2, 20, 28, 0.9), transparent);
+}
+
+.terminal__head b {
+  color: #cfeaf4;
+  font-weight: 400;
+}
+
+/* --- bins ------------------------------------------------------------ */
+.terminal__bins {
+  bottom: 0;
+  justify-content: center;
+  gap: clamp(0.6rem, 2.4vw, 2.4rem);
+  background: linear-gradient(to top, rgba(2, 20, 28, 0.92), transparent);
+  padding-bottom: clamp(0.5rem, 1.4vh, 1rem);
+}
+
+.bin {
+  position: relative;
+  width: clamp(28px, 5.2vw, 54px);
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  color: #4e8ea3;
+  transition: color 0.4s var(--ease-out);
+}
+
+.bin__lid {
+  position: relative;
+  width: 100%;
+  height: clamp(8px, 1.4vw, 14px);
+  border: var(--rule) solid currentColor;
+  border-bottom-color: transparent;
+  overflow: hidden;
+}
+
+.bin__lid::before {
+  /* fill level */
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--fill, 0%);
+  background: currentColor;
+  opacity: 0.5;
+  transition: height 0.6s var(--ease-out);
+}
+
+.bin em {
+  font-style: normal;
+}
+
+.bin.is-hot {
+  color: #8ee6ff;
+  filter: drop-shadow(0 0 8px rgba(87, 199, 232, 0.8));
+}
+
+.terminal__toast {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  padding: 0.8rem 1.6rem;
+  border: var(--rule) solid #57c7e8;
+  background: rgba(2, 20, 28, 0.85);
+  color: #cfeaf4;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.terminal__caption {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  text-align: right;
+}
+
+/* --- console side panel --------------------------------------------- */
+.mdr__aside {
+  display: grid;
+  gap: clamp(1rem, 2.4vh, 1.8rem);
+  align-content: center;
+}
+
+.mdr__title {
+  font-size: var(--step-2);
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-variation-settings: "wdth" 84, "wght" 300;
+}
+
+.mdr__body {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  line-height: 1.85;
+  color: var(--fg-dim);
+  max-width: 34ch;
+}
+
+.mdr__stats {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: var(--rule) solid var(--line);
+}
+
+.mdr__stats li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.mdr__stats span {
+  min-width: 4ch;
+  font-size: var(--step-1);
+  letter-spacing: 0;
+  color: var(--accent);
+}
+
+.mdr__hint {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* ======================================================= 04 · PERSONNEL == */
+.scene--personnel {
+  height: 460svh;
+}
+
+.personnel__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  /* An explicit clamped column is essential: the track inside is deliberately
+     wider than the viewport, and an `auto` column would size itself to that
+     max-content width and drag the header off screen with it. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(1rem, 3vh, 2rem);
+  padding: clamp(4.5rem, 13vh, 8rem) 0 clamp(2.5rem, 7vh, 4rem);
+}
+
+.personnel__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 var(--gutter) 0 max(var(--gutter), 11rem);
+}
+
+.personnel__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.personnel__title {
+  font-size: var(--step-3);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-variation-settings: "wdth" 78, "wght" 220;
+  line-height: 0.95;
+}
+
+.personnel__count {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.2em;
+  color: var(--fg-dim);
+}
+
+.personnel__count b {
+  color: var(--fg);
+  font-weight: 400;
+}
+
+/* --- horizontal track ----------------------------------------------- */
+.track {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 3rem);
+  padding: 0 max(var(--gutter), 8vw);
+  height: 100%;
+  width: max-content;
+  will-change: transform;
+}
+
+/* Height is capped to the track so a tall card can never overflow its grid row
+   and paint over the chapter header; the portrait absorbs the difference. */
+.dossier {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(17rem, 25vw, 23rem);
+  height: min(100%, 38rem);
+  display: grid;
+  grid-template-rows: minmax(5rem, 1fr) auto;
+  background: var(--bg-2);
+  border: var(--rule) solid var(--line);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Duotone abstract portraits, built entirely from gradients + a halftone
+   mask so the project ships without a single image file. */
+.dossier__portrait {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: #0d1418;
+  display: grid;
+  place-items: center;
+}
+
+.dossier__portrait::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+      42% 52% at var(--px, 50%) var(--py, 38%),
+      color-mix(in srgb, var(--tone, #7fb4c8) 92%, white) 0%,
+      color-mix(in srgb, var(--tone, #7fb4c8) 55%, #06131a) 42%,
+      transparent 72%
+    ),
+    conic-gradient(
+      from var(--pa, 200deg),
+      #06131a 0deg,
+      color-mix(in srgb, var(--tone, #7fb4c8) 35%, #06131a) 120deg,
+      #06131a 240deg,
+      color-mix(in srgb, var(--tone, #7fb4c8) 20%, #06131a) 360deg
+    );
+  filter: blur(2px) contrast(1.35);
+}
+
+.dossier__halftone {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center, #000 1.05px, transparent 1.35px);
+  background-size: 4px 4px;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+}
+
+/* Photographic falloff at the base of the plate, so the duotone reads as a
+   printed portrait rather than a gradient. */
+.dossier__portrait::before,
+.dossier__portrait::after {
+  pointer-events: none;
+}
+
+.dossier__portrait {
+  box-shadow: inset 0 -50px 60px -30px rgba(0, 0, 0, 0.75);
+}
+
+.dossier__portrait::after {
+  /* scanning line that sweeps on hover */
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 28%;
+  top: -30%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--tone, #7fb4c8) 45%, transparent),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.dossier:hover .dossier__portrait::after {
+  opacity: 1;
+  animation: portrait-scan 1.8s var(--ease-in-out) infinite;
+}
+
+@keyframes portrait-scan {
+  from {
+    top: -30%;
+  }
+  to {
+    top: 100%;
+  }
+}
+
+.dossier__initials {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  letter-spacing: 0.06em;
+  font-variation-settings: "wdth" 68, "wght" 200;
+  color: color-mix(in srgb, var(--tone, #7fb4c8) 30%, #eef1ef);
+  mix-blend-mode: overlay;
+}
+
+/* Tone per person */
+.dossier[data-tone="a"] { --tone: #7fb4c8; --px: 42%; --py: 34%; --pa: 190deg; }
+.dossier[data-tone="b"] { --tone: #d1594f; --px: 58%; --py: 40%; --pa: 310deg; }
+.dossier[data-tone="c"] { --tone: #8a9a6b; --px: 48%; --py: 30%; --pa: 60deg; }
+.dossier[data-tone="d"] { --tone: #c9a24a; --px: 55%; --py: 44%; --pa: 140deg; }
+.dossier[data-tone="e"] { --tone: #6f7f95; --px: 38%; --py: 42%; --pa: 250deg; }
+.dossier[data-tone="f"] { --tone: #4f9e86; --px: 52%; --py: 36%; --pa: 20deg; }
+
+.dossier__body {
+  display: grid;
+  gap: 0.85rem;
+  padding: clamp(1.1rem, 2vw, 1.8rem);
+  align-content: start;
+}
+
+.dossier__role {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.dossier__name {
+  font-size: var(--step-2);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-variation-settings: "wdth" 82, "wght" 420;
+  line-height: 0.95;
+}
+
+/* The <ul> is the grid and each <li> is `display: contents`, so the label
+   column is sized by the longest label across *all* rows. Per-row grids would
+   each size independently and the values would not line up. */
+.dossier__lines {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.5rem 0.9rem;
+  padding-top: 0.6rem;
+  border-top: var(--rule) solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.08em;
+}
+
+.dossier__lines li {
+  display: contents;
+}
+
+.dossier__lines b {
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--fg-faint);
+}
+
+.dossier__lines span {
+  min-width: 0;
+}
+
+.dossier__quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--step-1);
+  line-height: 1.2;
+  color: var(--accent);
+  margin-top: 0.3rem;
+}
+
+.dossier__stamp {
+  position: absolute;
+  right: -0.4rem;
+  top: 1.1rem;
+  padding: 0.3rem 0.8rem;
+  border: 2px solid var(--alarm, #d1594f);
+  color: var(--alarm, #d1594f);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  rotate: -4deg;
+  opacity: 0;
+  scale: 1.4;
+  mix-blend-mode: multiply;
+}
+
+.personnel__progress {
+  height: var(--rule);
+  margin: 0 var(--gutter);
+  background: var(--line);
+}
+
+.personnel__progress span {
+  display: block;
+  width: 0%;
+  height: 3px;
+  margin-top: -1px;
+  background: var(--accent);
+}
+
+/* ======================================================== 05 · DOCTRINE == */
+.scene--handbook {
+  height: 520svh;
+}
+
+.handbook__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: clamp(4.5rem, 13vh, 8rem) var(--gutter) clamp(3rem, 8vh, 5rem)
+    max(var(--gutter), 11rem);
+}
+
+.handbook__ledger {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: clamp(0.8rem, 2vh, 1.5rem);
+  max-width: 32rem;
+}
+
+.handbook__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* Sized so the longest tenet ("Benevolence") still sets on one line: a wrap
+   here would shunt the gloss and the index down mid-animation. */
+.handbook__display {
+  font-size: var(--step-3);
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-variation-settings: "wdth" 74, "wght" 300;
+  min-height: 1.05em;
+  white-space: nowrap;
+}
+
+.handbook__gloss {
+  font-family: var(--font-serif);
+  font-size: var(--step-1);
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--fg-dim);
+  max-width: 26ch;
+  min-height: 2.7em;
+}
+
+.handbook__index {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.22em;
+  color: var(--fg-faint);
+}
+
+.handbook__index b {
+  font-weight: 400;
+  color: var(--fg);
+}
+
+/* --- rotating tenet ring -------------------------------------------- */
+.ring {
+  position: absolute;
+  right: -18vmin;
+  top: 50%;
+  translate: 0 -50%;
+  width: 82vmin;
+  aspect-ratio: 1;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ring__list {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.ring__list li {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0 0;
+  font-size: clamp(1.4rem, 3.6vmin, 2.6rem);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-variation-settings: "wdth" 72, "wght" 300;
+  white-space: nowrap;
+  color: var(--fg-faint);
+  transition: color 0.5s var(--ease-out), opacity 0.5s var(--ease-out);
+}
+
+.ring__list li.is-current {
+  color: var(--accent);
+}
+
+.ring__marker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 82%;
+  aspect-ratio: 1;
+  border: var(--rule) dashed var(--line);
+  border-radius: 50%;
+}
+
+.ring__marker::before,
+.ring__marker::after {
+  content: "";
+  position: absolute;
+  background: var(--accent);
+}
+
+/* The tenets are right-aligned to the circle's left edge, so the caliper mark
+   has to sit just *inside* the circle — placed outside it, the dot would print
+   on top of the very word it is pointing at. */
+.ring__marker::before {
+  left: 0.5%;
+  top: 50%;
+  width: 11%;
+  height: var(--rule);
+}
+
+.ring__marker::after {
+  left: 0.5%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* --- Kier's verse --------------------------------------------------- */
+.handbook__kier {
+  position: absolute;
+  left: max(var(--gutter), 11rem);
+  bottom: clamp(2.5rem, 8vh, 5rem);
+  z-index: 3;
+  max-width: min(46ch, 46vw);
+  display: grid;
+  gap: 0.8rem;
+  opacity: 0;
+}
+
+.handbook__kier p {
+  font-family: var(--font-serif);
+  font-size: var(--step-1);
+  line-height: 1.3;
+}
+
+.handbook__kier footer {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.handbook__kier cite {
+  font-style: normal;
+}
+
+/* ====================================================== 06 · COMPLIANCE == */
+.scene--breakroom {
+  height: 480svh;
+}
+
+.breakroom__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: clamp(4.5rem, 13vh, 8rem) var(--gutter) clamp(3rem, 9vh, 6rem);
+  text-align: center;
+}
+
+.breakroom__lamp {
+  position: absolute;
+  left: 50%;
+  top: -14vh;
+  translate: -50% 0;
+  width: min(70vw, 40rem);
+  aspect-ratio: 1 / 1.2;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(217, 201, 138, 0.5) 0%,
+    rgba(217, 201, 138, 0.14) 34%,
+    transparent 70%
+  );
+  filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.breakroom__head {
+  position: absolute;
+  top: clamp(4.5rem, 13vh, 8rem);
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 0.8rem;
+  z-index: 3;
+}
+
+.breakroom__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.breakroom__title {
+  font-size: var(--step-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variation-settings: "wdth" 70, "wght" 200;
+}
+
+.statement {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: clamp(0.5rem, 1.6vh, 1rem);
+  max-width: 44rem;
+}
+
+.statement p {
+  font-family: var(--font-serif);
+  font-size: var(--step-2);
+  line-height: 1.18;
+  color: var(--fg);
+  opacity: 0.12;
+  will-change: opacity, transform;
+}
+
+.statement p.is-spoken {
+  opacity: 1;
+}
+
+.breakroom__verdict {
+  position: absolute;
+  bottom: clamp(2.5rem, 9vh, 6rem);
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+}
+
+.breakroom__verdict p[data-verdict] {
+  font-family: var(--font-mono);
+  font-size: var(--step-1);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--alarm);
+  transition: color 0.6s var(--ease-out);
+}
+
+.breakroom__verdict p[data-verdict].is-accepted {
+  color: var(--signal);
+}
+
+.breakroom__meter {
+  width: min(70vw, 26rem);
+  height: 2px;
+  background: var(--fg-faint);
+}
+
+.breakroom__meter span {
+  display: block;
+  width: 18%;
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.breakroom__gauge {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.breakroom__gauge b {
+  font-weight: 400;
+  color: var(--fg);
+}
+
+/* The lonely chair. Pure black on black would be invisible, so it is drawn as
+   a rim-lit silhouette: the lamp above catches only its top edges. */
+.breakroom__chair {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  width: min(46vw, 20rem);
+  height: 32vh;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.breakroom__chair span {
+  position: absolute;
+  background: #050604;
+}
+
+/* Seat */
+.breakroom__chair span:first-child {
+  left: 18%;
+  right: 18%;
+  bottom: 34%;
+  height: 7%;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  box-shadow: 0 -14px 34px -12px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 0 60px rgba(0, 0, 0, 0.95);
+}
+
+/* Backrest */
+.breakroom__chair span:last-child {
+  left: 24%;
+  width: 5%;
+  bottom: 34%;
+  height: 46%;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* =================================================== 07 · REINTEGRATION == */
+.scene--outro {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  align-content: space-between;
+  gap: clamp(3rem, 10vh, 7rem);
+  padding-top: clamp(5rem, 16vh, 10rem);
+}
+
+.outro__pin {
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.2rem, 3vh, 2.2rem);
+  padding: 0 var(--gutter);
+  text-align: center;
+}
+
+.outro__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.outro__title {
+  font-size: var(--step-4);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-variation-settings: "wdth" 74, "wght" 220;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+.outro__lines {
+  display: grid;
+  gap: 0.4rem;
+  font-family: var(--font-serif);
+  font-size: var(--step-1);
+  font-style: italic;
+  color: var(--fg-dim);
+}
+
+/* --- return button --------------------------------------------------- */
+.lift-up {
+  position: relative;
+  overflow: hidden;
+  /* Magnetic offset from the pointer module; kept off `transform`, which the
+     outro timeline animates. */
+  translate: var(--mx, 0px) var(--my, 0px);
+  margin-top: clamp(0.5rem, 3vh, 2rem);
+  padding: 1.15rem 2.4rem;
+  border: var(--rule) solid var(--fg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  isolation: isolate;
+}
+
+.lift-up__fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--fg);
+  translate: 0 101%;
+  transition: translate 0.6s var(--ease-out);
+}
+
+.lift-up:hover {
+  color: var(--bg);
+}
+
+.lift-up:hover .lift-up__fill {
+  translate: 0 0;
+}
+
+.lift-up__arrow {
+  transition: translate 0.6s var(--ease-out);
+}
+
+.lift-up:hover .lift-up__arrow {
+  translate: 0 -0.25rem;
+}
+
+/* --- credits --------------------------------------------------------- */
+.credits {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 4rem);
+  padding: clamp(2.5rem, 7vh, 5rem) var(--gutter) clamp(2rem, 6vh, 4rem);
+  border-top: var(--rule) solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  line-height: 1.9;
+  letter-spacing: 0.06em;
+  color: var(--fg-dim);
+}
+
+/* Scrim: the particle construct behind the outro is bright enough to compete
+   with body copy, so the credits sit on their own ground. */
+.credits::before {
+  content: "";
+  position: absolute;
+  inset: -4rem 0 0 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--bg) 88%, transparent) 35%,
+    var(--bg) 70%
+  );
+  pointer-events: none;
+}
+
+.credits h3 {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-bottom: 0.6rem;
+}
+
+.credits em {
+  font-style: italic;
+  color: var(--fg);
+}
+
+.credits__mark {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding-top: clamp(1.5rem, 5vh, 3rem);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.credits__mark .mark {
+  width: 1.1rem;
+  height: 1.1rem;
+}
