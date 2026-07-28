@@ -11,11 +11,11 @@
 
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
-import { join, extname } from "node:path";
+import { join, extname, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import puppeteer from "puppeteer-core";
 
-const ROOT = process.cwd();
+const ROOT = resolve(process.cwd(), process.env.DIR || ".");
 const PORT = 4179;
 const DSF = Number(process.env.DSF) || 1;
 const [vw, vh] = (process.env.VIEW || "1440x900").split("x").map(Number);
@@ -86,7 +86,7 @@ console.log(
 
 // No `clip`: a clipped capture expands the layout viewport, which stops the
 // fixed HUD compositing and returns a convincingly empty frame.
-await page.screenshot({ path: join(ROOT, out) });
+await page.screenshot({ path: join(process.cwd(), out) });
 console.log(`wrote ${out}`);
 
 await browser.close();

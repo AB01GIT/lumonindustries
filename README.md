@@ -14,17 +14,47 @@ The site uses ES modules and an import map, so it must be served over HTTP
 (opening `index.html` from the filesystem will not work).
 
 ```bash
-npm install      # only needed for the verification tooling
+npm install      # only needed for the tooling
 npm start        # → http://localhost:4173
 ```
 
 Any static server works just as well — `python -m http.server`, `npx serve`,
-the VS Code Live Server extension. There is no build step and nothing is
-compiled: what you edit is what the browser runs.
+the VS Code Live Server extension. **In development there is no build step and
+nothing is compiled: what you edit is what the browser runs.**
+
+## Building for production
+
+```bash
+npm run build      # → dist/
+npm run preview    # serve dist/ on http://localhost:4174
+```
+
+`dist/` is a self-contained folder — drop it on any static host, no server
+configuration and no runtime dependency on a CDN. The build only does the things
+a static host cannot:
+
+| | |
+| --- | --- |
+| **one JS bundle** | the modules are bundled and minified, and Three.js is tree-shaken down to the classes the stage actually touches — 1.2 MB of ESM becomes a 538 kB bundle, 140 kB over the wire |
+| **one stylesheet** | the four sheets concatenated in cascade order and minified, 37 kB / 8.7 kB gzipped |
+| **vendored libraries** | GSAP, ScrollTrigger, CustomEase and Lenis are downloaded into `dist/vendor/` at build time, so a deploy cannot drift when a CDN changes what it serves |
+| **content hashes** | `app-<hash>.js` / `app-<hash>.css`, so a host can cache the assets forever and still ship updates |
+
+About **208 kB gzipped** in total for the whole experience, fonts aside. The
+import map disappears from the built HTML (Three.js is inside the bundle), and
+the authoring comments are stripped, but the markup keeps its indentation —
+collapsing it risks changing significant whitespace and gzip flattens the
+difference anyway.
+
+Two flags are worth knowing: `--no-vendor` keeps the original CDN `<script>`
+tags, which is the better choice if you would rather share the browser's cached
+copy of GSAP with other sites, and `--sourcemap` emits a map next to the bundle.
+Typefaces are always loaded from Google Fonts; nothing else leaves the origin.
 
 ## Libraries
 
-Everything is loaded from CDN in `index.html`; there is no bundler.
+In development everything is loaded from CDN in `index.html`; there is no
+bundler. `npm run build` vendors and bundles the same versions.
 
 | Library | Role |
 | --- | --- |
@@ -79,7 +109,15 @@ js/
     world.js          renderer, cameras, corridor, particle system, palettes
     shaders.js        all GLSL: backdrop, walls, floor, ceiling, particles, post
   scenes/*.js         one module per chapter, each returning its timeline
-tools/                static server + headless verification scripts
+tools/
+  serve.mjs           static server for development and for previewing a build
+  build.mjs           produces dist/
+  check-syntax.mjs    parse-checks every module
+  smoke.mjs           headless walk of all eight chapters, desktop
+  mobile.mjs          the same at 390×844, plus an overflow assertion
+  frame.mjs           one frame at one scroll position, for close inspection
+  probe.mjs           computed styles and boxes at one scroll position
+dist/                 build output (gitignored)
 ```
 
 ### Three ideas hold it together
@@ -137,10 +175,17 @@ npm run check    # parse-check every module
 npm run smoke    # headless Chrome: walk all 8 chapters, report console errors
 npm run mobile   # same at 390×844, plus a horizontal-overflow assertion
 npm run verify   # all three
+
+npm run verify:dist   # build, then run the same walks against dist/
 ```
 
-Both drive the real Lenis instance through `window.__severance`, the debug
-handle `main.js` exposes. `smoke.mjs --shots` writes a frame per chapter into
+`verify:dist` is the one that matters before a deploy: it proves the minified,
+bundled, vendored output behaves identically to the source — same document
+height, same trigger count, same cell count, no console errors.
+
+All of them drive the real Lenis instance through `window.__severance`, the debug
+handle `main.js` exposes, and all take `--dir <folder>` to test a build instead
+of the source. `smoke.mjs --shots` writes a frame per chapter into
 `tools/shots/`; the mobile run always captures into `tools/shots-mobile/`.
 
 For narrower questions there are two more probes: `node tools/frame.mjs <scrollY>`

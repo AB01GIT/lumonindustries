@@ -4,14 +4,15 @@
  * The site is plain HTML/CSS/JS, but it uses ES modules and an import map, so
  * it has to be served over HTTP rather than opened from the filesystem.
  *
- *   node tools/serve.mjs [port]
+ *   node tools/serve.mjs [port] [root]
+ *   node tools/serve.mjs 4174 dist     # preview a production build
  */
 
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
-import { join, extname, normalize, sep } from "node:path";
+import { join, extname, normalize, resolve, sep } from "node:path";
 
-const ROOT = process.cwd();
+const ROOT = resolve(process.cwd(), process.argv[3] || ".");
 const PORT = Number(process.argv[2]) || 4173;
 
 const MIME = {
@@ -48,5 +49,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Lumon terminal online → http://localhost:${PORT}/`);
+  console.log(`Lumon terminal online → http://localhost:${PORT}/  (serving ${ROOT})`);
 });

@@ -6,18 +6,26 @@
  * frame per chapter and reporting every console error, page exception, failed
  * request and WebGL shader warning.
  *
- *   node tools/smoke.mjs [--shots]
+ *   node tools/smoke.mjs [--shots] [--dir dist]
+ *
+ * `--dir` points the server at a built folder instead of the source tree, which
+ * is how the production output gets the same walk as the source.
  */
 
 import { createServer } from "node:http";
 import { readFile, mkdir } from "node:fs/promises";
-import { join, extname } from "node:path";
+import { join, extname, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import puppeteer from "puppeteer-core";
 
-const ROOT = process.cwd();
+// The site under test: the source tree by default, or a built folder.
+const dirArg = process.argv.indexOf("--dir");
+const ROOT = resolve(
+  process.cwd(),
+  (dirArg !== -1 && process.argv[dirArg + 1]) || process.env.DIR || "."
+);
 const PORT = 4173;
-const SHOTS = join(ROOT, "tools", "shots");
+const SHOTS = join(process.cwd(), "tools", "shots");
 
 const CHROME = [
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",

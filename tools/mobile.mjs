@@ -3,18 +3,22 @@
  * horizontal overflow (the classic killer of full-bleed scroll sites) as well
  * as console errors.
  *
- *   node tools/mobile.mjs
+ *   node tools/mobile.mjs [--dir dist]
  */
 
 import { createServer } from "node:http";
 import { readFile, mkdir } from "node:fs/promises";
-import { join, extname } from "node:path";
+import { join, extname, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import puppeteer from "puppeteer-core";
 
-const ROOT = process.cwd();
+const dirArg = process.argv.indexOf("--dir");
+const ROOT = resolve(
+  process.cwd(),
+  (dirArg !== -1 && process.argv[dirArg + 1]) || process.env.DIR || "."
+);
 const PORT = 4175;
-const SHOTS = join(ROOT, "tools", "shots-mobile");
+const SHOTS = join(process.cwd(), "tools", "shots-mobile");
 const CHROME = [
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",

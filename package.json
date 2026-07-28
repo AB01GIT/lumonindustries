@@ -2,18 +2,23 @@
   "name": "severance-lumon",
   "version": "1.0.0",
   "private": true,
-  "description": "An immersive, scroll-driven journey through Lumon Industries. Static HTML/CSS/JS — the tooling here is only for local serving and verification.",
+  "description": "An immersive, scroll-driven journey through Lumon Industries. Hand-written HTML/CSS/JS; the tooling here only serves, builds and verifies it.",
   "type": "module",
   "scripts": {
     "start": "node tools/serve.mjs",
+    "build": "node tools/build.mjs",
+    "preview": "node tools/serve.mjs 4174 dist",
     "check": "node tools/check-syntax.mjs",
     "smoke": "node tools/smoke.mjs",
     "mobile": "node tools/mobile.mjs",
-    "verify": "npm run check && npm run smoke && npm run mobile"
+    "verify": "npm run check && npm run smoke && npm run mobile",
+    "verify:dist": "npm run build && node tools/smoke.mjs --dir dist && node tools/mobile.mjs --dir dist"
   },
   "keywords": ["severance", "gsap", "scrolltrigger", "lenis", "three.js", "webgl"],
   "license": "MIT",
   "devDependencies": {
-    "puppeteer-core": "^25.4.0"
+    "esbuild": "^0.28.1",
+    "puppeteer-core": "^25.4.0",
+    "three": "0.180.0"
   }
 }
