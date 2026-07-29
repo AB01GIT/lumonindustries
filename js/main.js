@@ -6,7 +6,8 @@
  *   2. bring up the persistent layers (WebGL stage, scroll engine, HUD, pointer)
  *   3. wait for webfonts, *then* split every headline (line breaks depend on
  *      final metrics, so splitting earlier would measure the fallback font)
- *   4. build all eight chapters
+ *   4. build all eight chapters, then the photographic plates on top of their
+ *      timelines, and decode the one that is already on screen
  *   5. only once all of the above is ready, let the boot terminal clear
  *
  * Scroll stays locked until step 5 completes, so nobody can scroll into a
@@ -21,6 +22,7 @@ import { initPointer } from "./core/pointer.js";
 import { initAudio, audio } from "./core/audio.js";
 import { runPreloader } from "./core/preloader.js";
 import { prepare } from "./core/reveals.js";
+import { initPlates } from "./core/plates.js";
 
 import { initHero } from "./scenes/hero.js";
 import { initDescent } from "./scenes/descent.js";
@@ -112,25 +114,32 @@ async function boot() {
       outro: initOutro({ world }),
     };
 
+    // Last, because every plate's choreography is quoted against the clock of
+    // the chapter timeline it belongs to, and those have to exist first.
+    const plates = initPlates({ scenes });
+    await plates.heroReady;
+
     ScrollTrigger.refresh();
-    return scenes;
+    return { scenes, plates };
   })();
 
   /* --- curtain -------------------------------------------------------- */
   await runPreloader({ assetsReady: buildScenes });
-  const scenes = await buildScenes;
+  const { scenes, plates } = await buildScenes;
 
   document.body.classList.remove("is-loading");
   startScroll();
   window.scrollTo(0, 0);
 
   hud.reveal();
+  // The atrium's blinds open under the title card, not before it.
+  plates.intro();
   scenes.hero?.intro();
 
   // A single debug handle. Scrubbing a 40-viewport-tall scripted narrative by
   // hand is impractical, so the stage, the scroll engine and the scenes are
   // reachable from the console (and from the smoke test in tools/).
-  window.__severance = { world, lenis: getLenis(), scenes, ScrollTrigger };
+  window.__severance = { world, lenis: getLenis(), scenes, plates, ScrollTrigger };
 
   if (prefersReducedMotion()) {
     // Respect the preference by removing the film treatment and settling the

@@ -22,7 +22,19 @@
     <link rel="stylesheet" href="./css/base.css" />
     <link rel="stylesheet" href="./css/interface.css" />
     <link rel="stylesheet" href="./css/scenes.css" />
+    <link rel="stylesheet" href="./css/plates.css" />
+    <link rel="stylesheet" href="./css/plates.lqip.css" />
     <link rel="stylesheet" href="./css/responsive.css" />
+
+    <!-- The atrium is on screen the moment the boot terminal clears, so it is
+         fetched alongside the stylesheets rather than discovered later. -->
+    <link
+      rel="preload"
+      as="image"
+      href="./img/atrium-1536.webp"
+      imagesrcset="./img/atrium-960.webp 960w, ./img/atrium-1536.webp 1536w"
+      imagesizes="100vw"
+    />
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050809'/%3E%3Cpath d='M16 7 L25 25 H7 Z' fill='none' stroke='%23a9d6e5' stroke-width='2'/%3E%3C/svg%3E" />
   </head>
@@ -163,6 +175,29 @@
         data-palette="outie"
         aria-label="Chapter 00 — Induction"
       >
+        <!-- The atrium. Revealed through a five-band mask built from a repeating
+             gradient, so it opens like a set of blinds and closes the same way
+             when the elevator takes over. The bands are one animated custom
+             property rather than five elements. -->
+        <figure class="plate plate--hero plate--slats" data-plate="atrium" aria-hidden="true">
+          <span class="plate__mask">
+            <span class="plate__move">
+              <img
+                class="plate__img"
+                src="./img/atrium-1536.webp"
+                srcset="./img/atrium-960.webp 960w, ./img/atrium-1536.webp 1536w"
+                sizes="100vw"
+                width="1536"
+                height="904"
+                alt=""
+                decoding="async"
+                fetchpriority="high"
+              />
+            </span>
+          </span>
+          <span class="plate__grade"></span>
+        </figure>
+
         <div class="hero__stack">
           <p class="hero__eyebrow" data-reveal="lines">
             <span>A wholly owned experience of Lumon Industries</span>
@@ -199,6 +234,29 @@
         aria-label="Chapter 01 — The Descent"
       >
         <div class="descent__pin">
+          <!-- The real car, sitting behind the built one: the CSS elevator's
+               doors and walls are translucent enough that this reads as the
+               steel underneath them, and it is what the whiteout burns through
+               at the cut. -->
+          <figure class="plate plate--lift" data-plate="lift" aria-hidden="true">
+            <span class="plate__mask">
+              <span class="plate__move">
+                <img
+                  class="plate__img"
+                  src="./img/lift-1536.webp"
+                  srcset="./img/lift-960.webp 960w, ./img/lift-1536.webp 1536w"
+                  sizes="100vw"
+                  width="1536"
+                  height="1024"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
+              </span>
+            </span>
+            <span class="plate__grade"></span>
+          </figure>
+
           <!-- Elevator car interior -->
           <div class="lift" aria-hidden="true">
             <div class="lift__wall lift__wall--l"></div>
@@ -247,6 +305,29 @@
         aria-label="Chapter 02 — The Floor"
       >
         <div class="corridor__pin">
+          <!-- Photographic corridor, matched to the WebGL one's vanishing point.
+               It opens as an aperture from the centre of the frame and takes
+               over as the rendered hallway dims — the same space, handed from
+               geometry to photography mid-dolly. -->
+          <figure class="plate plate--corridor" data-plate="corridor" aria-hidden="true">
+            <span class="plate__mask">
+              <span class="plate__move">
+                <img
+                  class="plate__img"
+                  src="./img/corridor-1536.webp"
+                  srcset="./img/corridor-960.webp 960w, ./img/corridor-1536.webp 1536w"
+                  sizes="100vw"
+                  width="1536"
+                  height="989"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
+              </span>
+            </span>
+            <span class="plate__grade"></span>
+          </figure>
+
           <div class="corridor__caption">
             <p class="corridor__kicker" data-corridor-kicker>FLOOR PLAN — SUBLEVEL</p>
             <h2 class="corridor__title" data-split="chars">The Severed Floor</h2>
@@ -301,6 +382,26 @@
         aria-label="Chapter 03 — Macrodata Refinement"
       >
         <div class="mdr__pin">
+          <!-- The room the terminal stands in, letterboxed open behind it. -->
+          <figure class="plate plate--floor" data-plate="floor" aria-hidden="true">
+            <span class="plate__mask">
+              <span class="plate__move">
+                <img
+                  class="plate__img"
+                  src="./img/floor-1536.webp"
+                  srcset="./img/floor-960.webp 960w, ./img/floor-1536.webp 1536w"
+                  sizes="100vw"
+                  width="1536"
+                  height="791"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
+              </span>
+            </span>
+            <span class="plate__grade"></span>
+          </figure>
+
           <figure class="terminal">
             <div class="terminal__bezel">
               <div class="terminal__screen">
@@ -372,6 +473,18 @@
           <div class="track" data-track>
             <article class="dossier" data-dossier data-tone="a">
               <div class="dossier__portrait" data-portrait="mark" aria-hidden="true">
+                <img
+                  class="dossier__photo"
+                  data-plate="badge-mark"
+                  src="./img/badge-mark-1024.webp"
+                  srcset="./img/badge-mark-640.webp 640w, ./img/badge-mark-1024.webp 1024w"
+                  sizes="(max-width: 760px) 78vw, 26rem"
+                  width="1024"
+                  height="1536"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
                 <span class="dossier__initials">MS</span>
                 <span class="dossier__halftone"></span>
               </div>
@@ -390,6 +503,18 @@
 
             <article class="dossier" data-dossier data-tone="b">
               <div class="dossier__portrait" data-portrait="helly" aria-hidden="true">
+                <img
+                  class="dossier__photo"
+                  data-plate="badge-helly"
+                  src="./img/badge-helly-1024.webp"
+                  srcset="./img/badge-helly-640.webp 640w, ./img/badge-helly-1024.webp 1024w"
+                  sizes="(max-width: 760px) 78vw, 26rem"
+                  width="1024"
+                  height="1536"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
                 <span class="dossier__initials">HR</span>
                 <span class="dossier__halftone"></span>
               </div>
@@ -408,6 +533,18 @@
 
             <article class="dossier" data-dossier data-tone="c">
               <div class="dossier__portrait" data-portrait="irving" aria-hidden="true">
+                <img
+                  class="dossier__photo"
+                  data-plate="badge-irving"
+                  src="./img/badge-irving-1024.webp"
+                  srcset="./img/badge-irving-640.webp 640w, ./img/badge-irving-1024.webp 1024w"
+                  sizes="(max-width: 760px) 78vw, 26rem"
+                  width="1024"
+                  height="1536"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
                 <span class="dossier__initials">IB</span>
                 <span class="dossier__halftone"></span>
               </div>
@@ -426,6 +563,18 @@
 
             <article class="dossier" data-dossier data-tone="d">
               <div class="dossier__portrait" data-portrait="dylan" aria-hidden="true">
+                <img
+                  class="dossier__photo"
+                  data-plate="badge-dylan"
+                  src="./img/badge-dylan-1024.webp"
+                  srcset="./img/badge-dylan-640.webp 640w, ./img/badge-dylan-1024.webp 1024w"
+                  sizes="(max-width: 760px) 78vw, 26rem"
+                  width="1024"
+                  height="1536"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
                 <span class="dossier__initials">DG</span>
                 <span class="dossier__halftone"></span>
               </div>
@@ -443,8 +592,15 @@
             </article>
 
             <article class="dossier" data-dossier data-tone="e">
-              <div class="dossier__portrait" data-portrait="cobel" aria-hidden="true">
+              <!-- Management files carry no photograph. Deliberate: the two
+                   cards without a face are the two people watching. -->
+              <div
+                class="dossier__portrait dossier__portrait--void"
+                data-portrait="cobel"
+                aria-hidden="true"
+              >
                 <span class="dossier__initials">HC</span>
+                <span class="dossier__void">No photograph on file</span>
                 <span class="dossier__halftone"></span>
               </div>
               <div class="dossier__body">
@@ -461,8 +617,13 @@
             </article>
 
             <article class="dossier" data-dossier data-tone="f">
-              <div class="dossier__portrait" data-portrait="milchick" aria-hidden="true">
+              <div
+                class="dossier__portrait dossier__portrait--void"
+                data-portrait="milchick"
+                aria-hidden="true"
+              >
                 <span class="dossier__initials">SM</span>
+                <span class="dossier__void">No photograph on file</span>
                 <span class="dossier__halftone"></span>
               </div>
               <div class="dossier__body">
@@ -494,6 +655,28 @@
         aria-label="Chapter 05 — Doctrine"
       >
         <div class="handbook__pin">
+          <!-- The founder, presiding. Uncovered top-down like a dust sheet
+               coming off, then drifting on his own parallax as the tenets turn
+               in front of him. -->
+          <figure class="plate plate--kier" data-plate="kier" aria-hidden="true">
+            <span class="plate__mask">
+              <span class="plate__move">
+                <img
+                  class="plate__img"
+                  src="./img/kier-1024.webp"
+                  srcset="./img/kier-640.webp 640w, ./img/kier-1024.webp 1024w"
+                  sizes="100vw"
+                  width="1024"
+                  height="1536"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
+              </span>
+            </span>
+            <span class="plate__grade"></span>
+          </figure>
+
           <div class="handbook__ledger">
             <p class="handbook__kicker">Employee handbook · Revision IX</p>
             <h2 class="handbook__display" data-tenet-display>Vision</h2>
@@ -537,6 +720,28 @@
         aria-label="Chapter 06 — The Break Room"
       >
         <div class="breakroom__pin">
+          <!-- The room is only visible where the lamp reaches it: the plate is
+               masked by a radial gradient whose radius is driven by the same
+               flicker timeline as the lamp itself. -->
+          <figure class="plate plate--breakroom" data-plate="breakroom" aria-hidden="true">
+            <span class="plate__mask">
+              <span class="plate__move">
+                <img
+                  class="plate__img"
+                  src="./img/breakroom-1536.webp"
+                  srcset="./img/breakroom-960.webp 960w, ./img/breakroom-1536.webp 1536w"
+                  sizes="100vw"
+                  width="1536"
+                  height="1024"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                />
+              </span>
+            </span>
+            <span class="plate__grade"></span>
+          </figure>
+
           <div class="breakroom__lamp" aria-hidden="true"></div>
 
           <header class="breakroom__head">
@@ -575,6 +780,27 @@
         data-palette="outie"
         aria-label="Chapter 07 — Egress"
       >
+        <!-- The way out, seen from the wrong side. Rises from below on parallax
+             and then closes over the frame when the visitor takes it. -->
+        <figure class="plate plate--egress" data-plate="egress" aria-hidden="true">
+          <span class="plate__mask">
+            <span class="plate__move">
+              <img
+                class="plate__img"
+                src="./img/egress-1536.webp"
+                srcset="./img/egress-960.webp 960w, ./img/egress-1536.webp 1536w"
+                sizes="100vw"
+                width="1536"
+                height="1023"
+                alt=""
+                decoding="async"
+                loading="lazy"
+              />
+            </span>
+          </span>
+          <span class="plate__grade"></span>
+        </figure>
+
         <div class="outro__pin">
           <p class="outro__kicker" data-reveal="fade">End of shift</p>
           <h2 class="outro__title" data-split="chars">Please enjoy each&nbsp;number equally</h2>
@@ -611,7 +837,11 @@
           <div class="credits__col">
             <h3>Instrumentation</h3>
             <p>GSAP · ScrollTrigger · Lenis · Three.js · Canvas 2D · Web Audio</p>
-            <p>Hand-written HTML, CSS &amp; JavaScript. No images.</p>
+            <p>Hand-written HTML, CSS &amp; JavaScript.</p>
+            <p>
+              Every photograph was rendered for this build — no frames from the series are
+              reproduced.
+            </p>
           </div>
           <p class="credits__mark">
             <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">

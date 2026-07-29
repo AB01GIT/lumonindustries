@@ -7,11 +7,12 @@
  *
  *   1. bundles the ES modules into one minified file, tree-shaking Three.js
  *      down to the handful of classes the stage actually touches
- *   2. concatenates and minifies the four stylesheets in cascade order
+ *   2. concatenates and minifies the stylesheets in cascade order
  *   3. vendors the CDN libraries locally, so the deployment has no runtime
  *      dependency on jsdelivr staying up or serving the same version
  *   4. rewrites index.html to point at content-hashed filenames, which lets a
  *      host cache the assets forever and still ship updates
+ *   5. copies the web-ready plates, leaving the full-size originals behind
  *
  *   node tools/build.mjs [--outdir dist] [--no-vendor] [--sourcemap]
  *
@@ -20,7 +21,7 @@
  * of GSAP with other sites than serve your own.
  */
 
-import { rm, mkdir, readFile, writeFile, cp } from "node:fs/promises";
+import { rm, mkdir, readFile, writeFile, readdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
@@ -43,6 +44,8 @@ const STYLES = [
   "css/base.css",
   "css/interface.css",
   "css/scenes.css",
+  "css/plates.css",
+  "css/plates.lqip.css",
   "css/responsive.css",
 ];
 
@@ -174,6 +177,27 @@ html = html
   .replace(/^[ \t]*\r?\n/gm, "");
 
 await emit("index.html", html);
+
+/* ------------------------------------------------------------------ img --- */
+// The web-ready plates are copied verbatim, filenames intact. They are not
+// content-hashed like the JS and CSS: the names are referenced from `srcset`
+// attributes across the markup, and the bytes only change when the pipeline in
+// tools/images.mjs is re-run — at which point the filenames change anyway,
+// because the width is in the name. `img/src/` holds the full-size originals and
+// is deliberately left behind, as is `plates.json` — nothing fetches it, it exists
+// so the `width`/`height` attributes in the markup can be written from measured
+// numbers rather than guessed.
+const imgFiles = (await readdir(join(ROOT, "img"), { withFileTypes: true })).filter(
+  (e) => e.isFile() && e.name !== "plates.json"
+);
+for (const entry of imgFiles) {
+  const body = await readFile(join(ROOT, "img", entry.name));
+  // Already-compressed formats: recording a gzip figure for them would only
+  // make the report lie about the transfer size.
+  await mkdir(join(OUT, "img"), { recursive: true });
+  await writeFile(join(OUT, "img", entry.name), body);
+  report.push({ file: `img/${entry.name}`, raw: body.length, gzip: body.length });
+}
 
 /* ---------------------------------------------------------------- extras -- */
 // A tiny manifest so a deploy can be identified after the fact.

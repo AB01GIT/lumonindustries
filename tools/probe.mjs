@@ -18,7 +18,7 @@ const CHROME = [
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
 ].find((p) => existsSync(p));
 
-const MIME = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".svg": "image/svg+xml" };
+const MIME = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".svg": "image/svg+xml", ".webp": "image/webp" };
 
 const server = createServer(async (req, res) => {
   try {
@@ -70,6 +70,18 @@ const out = await page.evaluate((sels) => {
       fontSize: cs.fontSize,
       overflow: `${cs.overflowX}/${cs.overflowY}`,
       text: (el.textContent || "").trim().slice(0, 42),
+      // Images only: whether the bytes actually arrived, and which variant the
+      // browser picked out of the srcset.
+      ...(el.tagName === "IMG"
+        ? {
+            natural: `${el.naturalWidth}x${el.naturalHeight}`,
+            src: (el.currentSrc || "").split("/").pop(),
+            filter: cs.filter,
+          }
+        : {}),
+      ...(el.classList.contains("plate__mask")
+        ? { mask: cs.maskImage.slice(0, 70), clip: cs.clipPath }
+        : {}),
     };
   });
 }, selectors);
