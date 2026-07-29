@@ -24,7 +24,7 @@ const CHROME = [
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
 ].find((p) => existsSync(p));
 
-const MIME = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml" };
+const MIME = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".webp": "image/webp" };
 const server = createServer(async (req, res) => {
   try {
     const file = join(ROOT, req.url === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));

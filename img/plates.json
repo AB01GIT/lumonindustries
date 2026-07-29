@@ -1,0 +1,255 @@
+{
+  "atrium": {
+    "width": 1536,
+    "height": 904,
+    "trimmed": {
+      "top": 64,
+      "bottom": 56
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1536,
+        "height": 904,
+        "file": "atrium-1536.webp",
+        "bytes": 41518
+      },
+      {
+        "width": 960,
+        "height": 565,
+        "file": "atrium-960.webp",
+        "bytes": 13768
+      }
+    ]
+  },
+  "badge-dylan": {
+    "width": 1024,
+    "height": 1536,
+    "trimmed": {
+      "top": 0,
+      "bottom": 0
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1024,
+        "height": 1536,
+        "file": "badge-dylan-1024.webp",
+        "bytes": 38866
+      },
+      {
+        "width": 640,
+        "height": 960,
+        "file": "badge-dylan-640.webp",
+        "bytes": 18022
+      }
+    ]
+  },
+  "badge-helly": {
+    "width": 1024,
+    "height": 1536,
+    "trimmed": {
+      "top": 0,
+      "bottom": 0
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1024,
+        "height": 1536,
+        "file": "badge-helly-1024.webp",
+        "bytes": 47468
+      },
+      {
+        "width": 640,
+        "height": 960,
+        "file": "badge-helly-640.webp",
+        "bytes": 20834
+      }
+    ]
+  },
+  "badge-irving": {
+    "width": 1024,
+    "height": 1536,
+    "trimmed": {
+      "top": 0,
+      "bottom": 0
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1024,
+        "height": 1536,
+        "file": "badge-irving-1024.webp",
+        "bytes": 47454
+      },
+      {
+        "width": 640,
+        "height": 960,
+        "file": "badge-irving-640.webp",
+        "bytes": 16952
+      }
+    ]
+  },
+  "badge-mark": {
+    "width": 1024,
+    "height": 1536,
+    "trimmed": {
+      "top": 0,
+      "bottom": 0
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1024,
+        "height": 1536,
+        "file": "badge-mark-1024.webp",
+        "bytes": 31762
+      },
+      {
+        "width": 640,
+        "height": 960,
+        "file": "badge-mark-640.webp",
+        "bytes": 14556
+      }
+    ]
+  },
+  "breakroom": {
+    "width": 1536,
+    "height": 1024,
+    "trimmed": {
+      "top": 0,
+      "bottom": 0
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1536,
+        "height": 1024,
+        "file": "breakroom-1536.webp",
+        "bytes": 21210
+      },
+      {
+        "width": 960,
+        "height": 640,
+        "file": "breakroom-960.webp",
+        "bytes": 8162
+      }
+    ]
+  },
+  "corridor": {
+    "width": 1536,
+    "height": 989,
+    "trimmed": {
+      "top": 19,
+      "bottom": 16
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1536,
+        "height": 989,
+        "file": "corridor-1536.webp",
+        "bytes": 24930
+      },
+      {
+        "width": 960,
+        "height": 618,
+        "file": "corridor-960.webp",
+        "bytes": 11036
+      }
+    ]
+  },
+  "egress": {
+    "width": 1536,
+    "height": 1023,
+    "trimmed": {
+      "top": 0,
+      "bottom": 1
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1536,
+        "height": 1023,
+        "file": "egress-1536.webp",
+        "bytes": 27960
+      },
+      {
+        "width": 960,
+        "height": 639,
+        "file": "egress-960.webp",
+        "bytes": 10934
+      }
+    ]
+  },
+  "floor": {
+    "width": 1536,
+    "height": 791,
+    "trimmed": {
+      "top": 117,
+      "bottom": 116
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1536,
+        "height": 791,
+        "file": "floor-1536.webp",
+        "bytes": 49806
+      },
+      {
+        "width": 960,
+        "height": 494,
+        "file": "floor-960.webp",
+        "bytes": 20858
+      }
+    ]
+  },
+  "kier": {
+    "width": 1024,
+    "height": 1536,
+    "trimmed": {
+      "top": 0,
+      "bottom": 0
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1024,
+        "height": 1536,
+        "file": "kier-1024.webp",
+        "bytes": 65618
+      },
+      {
+        "width": 640,
+        "height": 960,
+        "file": "kier-640.webp",
+        "bytes": 25362
+      }
+    ]
+  },
+  "lift": {
+    "width": 1536,
+    "height": 1024,
+    "trimmed": {
+      "top": 0,
+      "bottom": 0
+    },
+    "crop": {},
+    "variants": [
+      {
+        "width": 1536,
+        "height": 1024,
+        "file": "lift-1536.webp",
+        "bytes": 23290
+      },
+      {
+        "width": 960,
+        "height": 640,
+        "file": "lift-960.webp",
+        "bytes": 10406
+      }
+    ]
+  }
+}

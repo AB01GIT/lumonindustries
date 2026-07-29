@@ -1,0 +1,626 @@
+/* ==========================================================================
+   PLATES — the photographic layer
+   ==========================================================================
+
+   Every chapter has one plate: a still that belongs to that room. The problem
+   with dropping photographs into a palette this cold is that they arrive with
+   their own colour temperature and their own contrast, and the page suddenly
+   looks like two designs. So no plate is ever shown raw. Each one goes through
+   the same three-stage treatment:
+
+     1. FILTER      desaturated and re-contrasted per palette, so the image has
+                    no opinion of its own left
+     2. GRADE       a `--accent` wash in `color` blend mode, which throws the
+                    remaining luminance into whatever the current chapter's
+                    colour is — this is what makes the photography and the
+                    vector work look like the same material
+     3. BLEND       the whole figure blends into the background rather than
+                    covering it, so the palette always wins
+
+   STRUCTURE. Three nested elements, because three different things animate and
+   each transform needs exactly one owner:
+
+     figure.plate        layout + `autoAlpha` (opacity, never transform)
+       span.plate__mask  the reveal — `clip-path` / `mask-image`, no transform
+         span.plate__move  PARALLAX owner — `yPercent` / `xPercent`
+           img.plate__img  ZOOM owner — `scale`
+       span.plate__grade the colour wash, `opacity`
+
+   Nothing else may write `transform` to `__move` or `__img`. That rule is what
+   keeps the scroll choreography in js/core/plates.js free of the fighting that
+   normally makes layered image effects impossible to tune.
+   ========================================================================== */
+
+.plate {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Hidden until the chapter's timeline says otherwise. GSAP flips this with
+     `autoAlpha`, so nothing is composited while off screen. */
+  visibility: hidden;
+  opacity: 0;
+}
+
+.plate__mask,
+.plate__move {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* The wash the LQIP paints, so the frame is never empty while the WebP decodes.
+   `--lqip` comes from the generated plates.lqip.css. */
+.plate__mask {
+  background-image: var(--lqip, none);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Parallax needs somewhere to travel. The layer is oversized so a ±8% shift
+   never exposes an edge, and `__img` scales inside that. */
+.plate__move {
+  top: -12%;
+  bottom: -12%;
+  inset-inline: -4%;
+  height: auto;
+}
+
+.plate__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  /* Stage 1: strip the plate of its own colour and re-contrast it. Overridden
+     per palette below. Brightness is held near 1 on purpose — the plates were
+     shot dark, and the scrim below already takes a further bite out of them, so
+     crushing here as well leaves nothing on screen but a black rectangle. */
+  filter: grayscale(0.72) contrast(1.12) brightness(0.96);
+  will-change: transform;
+}
+
+/* Stage 2. `color` blend keeps the image's luminance and takes the chapter's
+   hue, which is why a warm oil painting and a cyan corridor can sit in the same
+   design without either being recoloured by hand. */
+.plate__grade {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--accent);
+  mix-blend-mode: color;
+  opacity: 0.5;
+}
+
+/* A plate carries the frame but never the message: it is dimmed where the type
+   lands and faded at the edges so the chapter's own layers still read.
+   `--scrim` is the strength of that centre dimming, in percent, and it is left
+   animatable on purpose — the hero uses it to let the photograph *develop* as
+   the title lifts out of the way, which is the only way a full-bleed image and a
+   centred wordmark can share one frame without one of them being wasted. */
+.plate {
+  --scrim: 52;
+}
+
+.plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      ellipse 76% 62% at 50% 50%,
+      color-mix(in srgb, var(--bg) calc(var(--scrim) * 1%), transparent) 0%,
+      color-mix(in srgb, var(--bg) calc(var(--scrim) * 0.42%), transparent) 52%,
+      transparent 84%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 58%, transparent) 0%,
+      transparent 24%,
+      transparent 66%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 100%
+    );
+}
+
+/* --------------------------------------------------------------------------
+   PALETTE GRADING
+   Each chapter's palette wants a different treatment. The dark chapters want
+   the image crushed so only highlights survive; the blown-out white floor
+   wants it lifted until it is nearly paper.
+   -------------------------------------------------------------------------- */
+
+[data-theme="outie"] .plate__img {
+  filter: grayscale(0.78) contrast(1.18) brightness(0.94);
+}
+
+[data-theme="innie"] .plate__img {
+  filter: grayscale(0.62) contrast(0.9) brightness(1.16) saturate(0.9);
+}
+
+[data-theme="innie"] .plate__grade {
+  opacity: 0.34;
+}
+
+[data-theme="crt"] .plate__img {
+  filter: grayscale(0.7) contrast(1.18) brightness(0.86) saturate(1.1);
+}
+
+[data-theme="crt"] .plate__grade {
+  opacity: 0.62;
+}
+
+/* The doctrine chapter is the one place the photography keeps its own warmth:
+   the portrait is meant to look like an old painting under gallery light. It is
+   also the one *light* palette, which inverts the usual problem — a bright plate
+   on cream paper does not add atmosphere, it lifts the blacks off the whole
+   chapter and takes the type's contrast with them. So this plate is darkened,
+   not brightened: ink on paper rather than fog over it. */
+[data-theme="paper"] .plate__img {
+  filter: grayscale(0.22) contrast(1.16) brightness(0.84) sepia(0.14);
+}
+
+[data-theme="paper"] .plate__grade {
+  opacity: 0.16;
+}
+
+[data-theme="dark"] .plate__img {
+  filter: grayscale(0.86) contrast(1.26) brightness(0.9);
+}
+
+[data-theme="dark"] .plate__grade {
+  opacity: 0.4;
+}
+
+/* --------------------------------------------------------------------------
+   00 · ATRIUM — five-band blind reveal
+   One animated custom property drives a repeating gradient mask. `--slat` runs
+   0 → 1 to open the blinds and back to 0 to close them, which is how the
+   chapter hands over to the elevator.
+   -------------------------------------------------------------------------- */
+
+.plate--slats .plate__mask {
+  --slat: 0;
+  -webkit-mask-image: repeating-linear-gradient(
+    to right,
+    #000 0 calc(var(--slat) * 20%),
+    transparent calc(var(--slat) * 20%) 20%
+  );
+  mask-image: repeating-linear-gradient(
+    to right,
+    #000 0 calc(var(--slat) * 20%),
+    transparent calc(var(--slat) * 20%) 20%
+  );
+}
+
+/* The atrium is a held breath under the title card and a full photograph the
+   moment the type clears: it starts almost entirely scrimmed, and the scroll
+   choreography opens it up. The image is pushed down so the lit wall and the
+   reception desk arrive as the wordmark leaves. */
+.plate--hero {
+  --scrim: 88;
+}
+
+.plate--hero .plate__img {
+  object-position: 50% 42%;
+}
+
+/* Two jobs beyond the usual dimming. The top band protects the instrument panel,
+   which sits over the brightest part of the wall once the plate has developed.
+   The bottom band goes all the way to the background colour well before the
+   plate's own edge: the induction chapter is not pinned, so the figure scrolls
+   away with the section, and a plate that is still visible at its boundary
+   leaves a hard horizontal seam travelling up the screen. */
+.plate--hero::after {
+  background: radial-gradient(
+      ellipse 76% 62% at 50% 46%,
+      color-mix(in srgb, var(--bg) calc(var(--scrim) * 1%), transparent) 0%,
+      color-mix(in srgb, var(--bg) calc(var(--scrim) * 0.4%), transparent) 54%,
+      transparent 86%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 80%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 30%, transparent) 12%,
+      transparent 30%,
+      transparent 58%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 82%,
+      var(--bg) 97%
+    );
+}
+
+/* --------------------------------------------------------------------------
+   01 · LIFT
+   Sits behind the built elevator, reading as the steel under the CSS doors.
+
+   No blend mode here, and none on any `.plate`: every `.scene` is
+   `isolation: isolate`, so a plate is the first thing painted in its group and
+   has no backdrop to blend with. Blending only does useful work *inside* a
+   plate, which is where `.plate__grade` uses it. Anything set on the figure
+   itself is silently inert — worth knowing before reaching for `screen` to fix
+   a dark plate. Lift the exposure instead, which is what this does: the car was
+   shot almost black, and on the darkest palette it needs opening up rather than
+   crushing.
+   -------------------------------------------------------------------------- */
+
+/* `contrast()` below 1 is doing the work here, not `brightness()`. The car was
+   shot at near-black, and multiplying a value of 8/255 by anything sane leaves
+   it black; pulling contrast in first raises the floor off zero so there is
+   something for the exposure to lift. The same trick is used on the egress
+   plate, and for the same reason. */
+.plate--lift .plate__img {
+  filter: grayscale(0.86) contrast(0.78) brightness(1.55);
+}
+
+.plate--lift .plate__grade {
+  opacity: 0.24;
+}
+
+/* No centre scrim here: the doors and the fall need the middle of the frame. */
+.plate--lift::after {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 70%, transparent) 0%,
+    transparent 22%,
+    transparent 74%,
+    color-mix(in srgb, var(--bg) 82%, transparent) 100%
+  );
+}
+
+/* --------------------------------------------------------------------------
+   02 · CORRIDOR
+   Opens as an aperture from the vanishing point. `--iris` is the half-size of
+   the visible rectangle, animated by the scene timeline; at 50 the plate is
+   full-bleed and the WebGL hallway behind it has faded out.
+   -------------------------------------------------------------------------- */
+
+.plate--corridor .plate__mask {
+  --iris: 0;
+  clip-path: inset(
+    calc(50% - var(--iris) * 1%) calc(50% - var(--iris) * 1.6%) round 2px
+  );
+}
+
+.plate--corridor .plate__img {
+  /* The rendered corridor's vanishing point is slightly above centre; matching
+     it is what makes the hand-off read as one continuous space. */
+  object-position: 50% 44%;
+}
+
+.plate--corridor::after {
+  background: radial-gradient(
+      ellipse 70% 60% at 50% 46%,
+      transparent 0%,
+      transparent 40%,
+      color-mix(in srgb, var(--bg) 70%, transparent) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 60%, transparent) 0%,
+      transparent 20%,
+      transparent 72%,
+      color-mix(in srgb, var(--bg) 78%, transparent) 100%
+    );
+}
+
+/* --------------------------------------------------------------------------
+   03 · REFINEMENT FLOOR
+   A letterbox that opens vertically behind the terminal. `--band` is the
+   inset from the top and bottom in percent.
+   -------------------------------------------------------------------------- */
+
+.plate--floor .plate__mask {
+  --band: 50;
+  clip-path: inset(calc(var(--band) * 1%) 0);
+}
+
+.plate--floor .plate__img {
+  object-position: 50% 56%;
+}
+
+/* Both columns are scrimmed, for opposite reasons: the console on the left is
+   the smallest type in the chapter, and the briefing on the right is set in
+   `--fg-dim`, which has nothing left to give if the desks behind it are legible. */
+.plate--floor::after {
+  background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--bg) 80%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 40%, transparent) 46%,
+      color-mix(in srgb, var(--bg) 84%, transparent) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 66%, transparent) 0%,
+      transparent 24%,
+      transparent 70%,
+      color-mix(in srgb, var(--bg) 80%, transparent) 100%
+    );
+}
+
+/* --------------------------------------------------------------------------
+   05 · KIER
+   The founder presides over the chapter rather than hanging in it. A framed
+   picture was the first instinct, but the tenet wheel is 82vmin across and owns
+   the right half of the frame, so an object placed anywhere in that half either
+   collides with the rotating words or shrinks to a postage stamp. Full-bleed
+   instead, with the gilt frame cropped away and the canvas pushed right, so the
+   portrait reads as a fresco on the wall the wheel is turning against.
+   -------------------------------------------------------------------------- */
+
+/* Revealed top-down, like a dust sheet coming off. A gradient rather than
+   `clip-path` because the edge has to be soft: this chapter is the one flat
+   cream field on the site, and a hard horizontal line travelling down it reads
+   as a rendering fault instead of a reveal. The black stop trails 22vh above the
+   transparent one, which is the feather; at `--curtain: 100` it sits off the top
+   of the box, so the plate is genuinely hidden rather than nearly so. */
+.plate--kier .plate__mask {
+  --curtain: 100;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - var(--curtain) * 1% - 22vh),
+    transparent calc(100% - var(--curtain) * 1%)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - var(--curtain) * 1% - 22vh),
+    transparent calc(100% - var(--curtain) * 1%)
+  );
+}
+
+/* The sitter is pushed into the right third, which is the half of the frame the
+   tenet wheel already owns — line art over a painting reads, body copy over a
+   painting does not. An inset panel was tried here first and abandoned: however
+   carefully its edge was ramped into `--bg`, a plate boundary standing in the
+   middle of a flat cream field is a straight line the eye finds every time. */
+.plate--kier .plate__img {
+  object-position: 74% 17%;
+  transform-origin: 74% 24%;
+}
+
+/* Museum picture-light: solid paper across the ledger column, then a ramp that
+   lets the canvas surface only under the wheel. Because it is a gradient rather
+   than an edge there is no boundary to notice. The figures are lighter than on
+   the other plates — on a cream palette every stop *raises* the floor of the
+   frame, so a scrim heavy enough to protect body copy would wash the chapter
+   out. */
+.plate--kier::after {
+  background: linear-gradient(
+      to right,
+      var(--bg) 0%,
+      var(--bg) 26%,
+      color-mix(in srgb, var(--bg) 66%, transparent) 44%,
+      color-mix(in srgb, var(--bg) 24%, transparent) 66%,
+      transparent 90%
+    ),
+    /* The instrument panel and the depth gauge are the smallest type on the page
+       and they sit in these two bands, over the brightest part of the canvas. */
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--bg) 74%, transparent) 0%,
+        color-mix(in srgb, var(--bg) 20%, transparent) 14%,
+        transparent 30%,
+        transparent 56%,
+        color-mix(in srgb, var(--bg) 90%, transparent) 100%
+      );
+}
+
+/* --------------------------------------------------------------------------
+   06 · BREAK ROOM
+   The plate is only visible where the lamp reaches. `--reach` is the radius of
+   the lamp's pool in percent, driven by the same flicker timeline as the lamp,
+   so when the light stutters the room stutters with it.
+   -------------------------------------------------------------------------- */
+
+.plate--breakroom .plate__mask {
+  --reach: 0;
+  --lamp-x: 50%;
+  --lamp-y: 34%;
+  -webkit-mask-image: radial-gradient(
+    circle calc(var(--reach) * 1%) at var(--lamp-x) var(--lamp-y),
+    #000 0%,
+    rgb(0 0 0 / 0.72) 42%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle calc(var(--reach) * 1%) at var(--lamp-x) var(--lamp-y),
+    #000 0%,
+    rgb(0 0 0 / 0.72) 42%,
+    transparent 100%
+  );
+}
+
+.plate--breakroom .plate__img {
+  object-position: 50% 62%;
+  filter: grayscale(0.9) contrast(1.32) brightness(1.05);
+}
+
+/* The scrim would undo the mask — the pool of light is the composition. */
+.plate--breakroom::after {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 70%, transparent) 0%,
+    transparent 30%,
+    transparent 78%,
+    color-mix(in srgb, var(--bg) 80%, transparent) 100%
+  );
+}
+
+/* --------------------------------------------------------------------------
+   07 · EGRESS
+   -------------------------------------------------------------------------- */
+
+/* Almost nothing in the frame but the caged light over the doors, so it needs
+   the same lifting as the car. */
+.plate--egress .plate__img {
+  object-position: 50% 46%;
+  filter: grayscale(0.8) contrast(0.82) brightness(1.5);
+}
+
+/* No mask on this one. The closing beat is a push-in on the door seam rather
+   than a wipe: the plate is already a photograph of shut doors, so an inward
+   clip does not read as them closing — it reads as the picture being taken
+   away, which is the opposite of arriving in front of them. */
+
+/* The credits sit along the bottom of this chapter, under the brightest part of
+   the plate once it has pushed in. */
+.plate--egress::after {
+  background: radial-gradient(
+      ellipse 64% 54% at 50% 34%,
+      color-mix(in srgb, var(--bg) calc(var(--scrim) * 0.6%), transparent) 0%,
+      transparent 76%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 64%, transparent) 0%,
+      transparent 22%,
+      color-mix(in srgb, var(--bg) 52%, transparent) 58%,
+      color-mix(in srgb, var(--bg) 88%, transparent) 100%
+    );
+}
+
+/* --------------------------------------------------------------------------
+   04 · PERSONNEL PHOTOGRAPHS
+   These are not full-bleed plates; they live inside the dossier cards under
+   the existing halftone screen, so the photograph appears to be printed by the
+   same press as the rest of the file. The initials stay on top as a
+   registration mark.
+   -------------------------------------------------------------------------- */
+
+.dossier__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  /* Duotone: crushed to near-monochrome, then tinted by the card's own tone
+     via the halftone layer sitting on top of it. */
+  filter: grayscale(0.88) contrast(1.24) brightness(0.92);
+  mix-blend-mode: luminosity;
+  opacity: 0;
+  will-change: transform;
+}
+
+/* Paint order inside the portrait is left to the document: `::before` (the
+   duotone gradient) is the first child, then this photograph, then the halftone
+   screen, then the hover scan, then the initials on their own z-index. No new
+   layering is introduced — `luminosity` blending means the photograph keeps its
+   own light and takes the card's existing `--tone` for colour, so the six files
+   stay six colours rather than becoming six photographs. */
+
+/* With a photograph behind them the initials become an overprint rather than
+   the subject, so they lose most of their weight. Written as a negation of the
+   management modifier rather than `:has()`, which is newer than this project's
+   baseline. */
+.dossier__portrait:not(.dossier__portrait--void) .dossier__initials {
+  opacity: 0.14;
+}
+
+/* Management: no photograph, and the file says so. */
+.dossier__void {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 1.1rem;
+  translate: -50% 0;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--fg) 42%, transparent);
+  white-space: nowrap;
+}
+
+.dossier__void::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.34rem;
+  width: 118%;
+  height: 1px;
+  translate: -50% 0;
+  background: color-mix(in srgb, var(--fg) 22%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE + ACCESSIBILITY
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  /* Less travel on a short viewport, or the crop starves. */
+  .plate__move {
+    top: -7%;
+    bottom: -7%;
+    inset-inline: -2%;
+  }
+
+  /* The doctrine chapter is one column at this width, with the verse over the
+     middle of the frame, so the sitter comes back to centre and the scrim below
+     switches from a side ramp to a plain top-and-bottom one. */
+  .plate--kier .plate__img {
+    object-position: 56% 14%;
+  }
+
+  .plate--kier::after {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 62%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 22%, transparent) 26%,
+      color-mix(in srgb, var(--bg) 30%, transparent) 62%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 100%
+    );
+  }
+
+  .dossier__void {
+    font-size: 0.52rem;
+  }
+}
+
+/* Three transforms per frame on a full-bleed image is the single most expensive
+   thing on the page. Where the viewport is tall and narrow the parallax is
+   worth less than the frame rate. */
+@media (max-width: 480px) {
+  .plate__img,
+  .dossier__photo {
+    will-change: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The plates stay — they are content. What goes is the travel: the JS skips
+     parallax and zoom under this query, so the masks are opened here to their
+     resting state in case a timeline never runs. */
+  .plate {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .plate--slats .plate__mask {
+    --slat: 1;
+  }
+
+  .plate--corridor .plate__mask {
+    --iris: 50;
+  }
+
+  .plate--floor .plate__mask {
+    --band: 0;
+  }
+
+  .plate--kier .plate__mask {
+    --curtain: 0;
+  }
+
+  .plate--breakroom .plate__mask {
+    --reach: 86;
+  }
+
+  .plate__img,
+  .dossier__photo {
+    will-change: auto;
+  }
+
+  .dossier__photo {
+    opacity: 1;
+  }
+}
