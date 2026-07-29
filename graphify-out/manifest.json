@@ -1,0 +1,337 @@
+{
+  "img/plates.json": {
+    "mtime": 1785322728.4393895,
+    "ast_hash": "b951b1a7bcad08f74059450b632f1b19",
+    "semantic_hash": "b951b1a7bcad08f74059450b632f1b19"
+  },
+  "js/core/audio.js": {
+    "mtime": 1785238960.9576426,
+    "ast_hash": "385237724e6c91f832404776de33df74",
+    "semantic_hash": "385237724e6c91f832404776de33df74"
+  },
+  "js/core/hud.js": {
+    "mtime": 1785242745.703989,
+    "ast_hash": "6d207aff78a76cb1bae7a33eba0bf7b7",
+    "semantic_hash": "6d207aff78a76cb1bae7a33eba0bf7b7"
+  },
+  "js/core/plates.js": {
+    "mtime": 1785322321.792894,
+    "ast_hash": "394375a3385984ba365ac4dc6b4c0f8f",
+    "semantic_hash": "394375a3385984ba365ac4dc6b4c0f8f"
+  },
+  "js/core/pointer.js": {
+    "mtime": 1785244407.8798344,
+    "ast_hash": "574020f36638b01647b90fa5c84b9aa1",
+    "semantic_hash": "574020f36638b01647b90fa5c84b9aa1"
+  },
+  "js/core/preloader.js": {
+    "mtime": 1785242243.5285904,
+    "ast_hash": "5690392ce5885198ee01a30c845ba356",
+    "semantic_hash": "5690392ce5885198ee01a30c845ba356"
+  },
+  "js/core/reveals.js": {
+    "mtime": 1785239358.4979713,
+    "ast_hash": "a6657c738c7fc211edaa1c79ceddc4c3",
+    "semantic_hash": "a6657c738c7fc211edaa1c79ceddc4c3"
+  },
+  "js/core/scroll.js": {
+    "mtime": 1785243515.331231,
+    "ast_hash": "d36ec4f20f485ff56a9338dae93f2116",
+    "semantic_hash": "d36ec4f20f485ff56a9338dae93f2116"
+  },
+  "js/core/split.js": {
+    "mtime": 1785238865.5566418,
+    "ast_hash": "8f202acd12401164e20cdf1e5f3fba09",
+    "semantic_hash": "8f202acd12401164e20cdf1e5f3fba09"
+  },
+  "js/core/utils.js": {
+    "mtime": 1785242504.9675303,
+    "ast_hash": "46c8d459c06f5dfd957fadfab8ccf919",
+    "semantic_hash": "46c8d459c06f5dfd957fadfab8ccf919"
+  },
+  "js/main.js": {
+    "mtime": 1785319225.5708673,
+    "ast_hash": "faed708739dfef50768427db0b21af1c",
+    "semantic_hash": "faed708739dfef50768427db0b21af1c"
+  },
+  "js/scenes/breakroom.js": {
+    "mtime": 1785240811.3259137,
+    "ast_hash": "4fe1a4ab6b4fa1defb7b0d997dd616de",
+    "semantic_hash": "4fe1a4ab6b4fa1defb7b0d997dd616de"
+  },
+  "js/scenes/corridor.js": {
+    "mtime": 1785241736.5516,
+    "ast_hash": "5584c6bf95462ec454e4345d1cc12637",
+    "semantic_hash": "5584c6bf95462ec454e4345d1cc12637"
+  },
+  "js/scenes/descent.js": {
+    "mtime": 1785241037.527083,
+    "ast_hash": "fa4cbbdcd7c149781110a924bc305c58",
+    "semantic_hash": "fa4cbbdcd7c149781110a924bc305c58"
+  },
+  "js/scenes/handbook.js": {
+    "mtime": 1785241362.2450964,
+    "ast_hash": "a760334b83c9ad934460de970e1c3484",
+    "semantic_hash": "a760334b83c9ad934460de970e1c3484"
+  },
+  "js/scenes/hero.js": {
+    "mtime": 1785239387.6044834,
+    "ast_hash": "1c3be0297ab9a89d73e90b477838e437",
+    "semantic_hash": "1c3be0297ab9a89d73e90b477838e437"
+  },
+  "js/scenes/macrodata.js": {
+    "mtime": 1785240846.7853625,
+    "ast_hash": "3f631ef826484648bbb89ecf636ea7cf",
+    "semantic_hash": "3f631ef826484648bbb89ecf636ea7cf"
+  },
+  "js/scenes/mdr-screen.js": {
+    "mtime": 1785240861.3421135,
+    "ast_hash": "a885f50e382def82d353d1e3145eb03c",
+    "semantic_hash": "a885f50e382def82d353d1e3145eb03c"
+  },
+  "js/scenes/outro.js": {
+    "mtime": 1785241045.527489,
+    "ast_hash": "e5716d28966536f4351349ccee90b708",
+    "semantic_hash": "e5716d28966536f4351349ccee90b708"
+  },
+  "js/scenes/personnel.js": {
+    "mtime": 1785243032.164258,
+    "ast_hash": "179054bbd2d410ce1bcdd5163c636c10",
+    "semantic_hash": "179054bbd2d410ce1bcdd5163c636c10"
+  },
+  "js/webgl/shaders.js": {
+    "mtime": 1785240633.8753004,
+    "ast_hash": "5449fb1b1a361d2e01f048f6ea55b302",
+    "semantic_hash": "5449fb1b1a361d2e01f048f6ea55b302"
+  },
+  "js/webgl/world.js": {
+    "mtime": 1785240650.7819207,
+    "ast_hash": "4b6255e4f79b000c5195c5d191f7e421",
+    "semantic_hash": "4b6255e4f79b000c5195c5d191f7e421"
+  },
+  "package.json": {
+    "mtime": 1785318186.850176,
+    "ast_hash": "f8b8b7960d518e61c51716b95b6c2196",
+    "semantic_hash": "f8b8b7960d518e61c51716b95b6c2196"
+  },
+  "tools/build.mjs": {
+    "mtime": 1785323065.2032824,
+    "ast_hash": "b7fc6c9346567a6961d376fc2a21c68f",
+    "semantic_hash": "b7fc6c9346567a6961d376fc2a21c68f"
+  },
+  "tools/check-syntax.mjs": {
+    "mtime": 1785240085.9571714,
+    "ast_hash": "bc894721346bb0a2a6e00e2d13b00512",
+    "semantic_hash": "bc894721346bb0a2a6e00e2d13b00512"
+  },
+  "tools/frame.mjs": {
+    "mtime": 1785322208.1060534,
+    "ast_hash": "471a60fd39ef5d3c3d2598d211996b56",
+    "semantic_hash": "471a60fd39ef5d3c3d2598d211996b56"
+  },
+  "tools/images.mjs": {
+    "mtime": 1785320890.6693249,
+    "ast_hash": "4ba6cc993f200bfaba4f3c4435abedf4",
+    "semantic_hash": "4ba6cc993f200bfaba4f3c4435abedf4"
+  },
+  "tools/mobile.mjs": {
+    "mtime": 1785319417.9871173,
+    "ast_hash": "6bf1f065a6d0fd7a37606b5b63a38457",
+    "semantic_hash": "6bf1f065a6d0fd7a37606b5b63a38457"
+  },
+  "tools/probe-cards.mjs": {
+    "mtime": 1785241926.3523319,
+    "ast_hash": "c3de3704a14d1911822d0659c1ab73d4",
+    "semantic_hash": "c3de3704a14d1911822d0659c1ab73d4"
+  },
+  "tools/probe.mjs": {
+    "mtime": 1785319681.7903645,
+    "ast_hash": "68add658e4ecd7c114fe5fe6e1bb49f1",
+    "semantic_hash": "68add658e4ecd7c114fe5fe6e1bb49f1"
+  },
+  "tools/serve.mjs": {
+    "mtime": 1785319405.784587,
+    "ast_hash": "0d3cadaeb0dc3635961fd70d01aee4db",
+    "semantic_hash": "0d3cadaeb0dc3635961fd70d01aee4db"
+  },
+  "tools/smoke.mjs": {
+    "mtime": 1785319411.5290627,
+    "ast_hash": "2956f9464148b2790aa59e17eaab7b04",
+    "semantic_hash": "2956f9464148b2790aa59e17eaab7b04"
+  },
+  "README.md": {
+    "mtime": 1785323090.2329774,
+    "ast_hash": "6b2bc7e1bb788a02d457278dc897ad88",
+    "semantic_hash": "6b2bc7e1bb788a02d457278dc897ad88"
+  },
+  "index.html": {
+    "mtime": 1785322497.2468388,
+    "ast_hash": "583cad56864304415a21e316cfbef679",
+    "semantic_hash": "583cad56864304415a21e316cfbef679"
+  },
+  "img/atrium-1536.webp": {
+    "mtime": 1785322725.4618375,
+    "ast_hash": "fc7898fb0c700075833dedfa2087f751",
+    "semantic_hash": "fc7898fb0c700075833dedfa2087f751"
+  },
+  "img/atrium-960.webp": {
+    "mtime": 1785322725.5409226,
+    "ast_hash": "bf2fb695e15b6fb778a5a70a357047ea",
+    "semantic_hash": "bf2fb695e15b6fb778a5a70a357047ea"
+  },
+  "img/badge-dylan-1024.webp": {
+    "mtime": 1785322725.7455666,
+    "ast_hash": "52ede8103b3b546bb93d69e7b40c9e14",
+    "semantic_hash": "52ede8103b3b546bb93d69e7b40c9e14"
+  },
+  "img/badge-dylan-640.webp": {
+    "mtime": 1785322725.8278537,
+    "ast_hash": "4d3da50b783be20d6a4d7bcd3d6ddd70",
+    "semantic_hash": "4d3da50b783be20d6a4d7bcd3d6ddd70"
+  },
+  "img/badge-helly-1024.webp": {
+    "mtime": 1785322726.0467,
+    "ast_hash": "87ad01179795358b01da106cfe7c01f1",
+    "semantic_hash": "87ad01179795358b01da106cfe7c01f1"
+  },
+  "img/badge-helly-640.webp": {
+    "mtime": 1785322726.1343937,
+    "ast_hash": "f10f8389b8b61dac78c5d46c411b842c",
+    "semantic_hash": "f10f8389b8b61dac78c5d46c411b842c"
+  },
+  "img/badge-irving-1024.webp": {
+    "mtime": 1785322726.35466,
+    "ast_hash": "c623a468a91f6d9e4eac14c26e19a606",
+    "semantic_hash": "c623a468a91f6d9e4eac14c26e19a606"
+  },
+  "img/badge-irving-640.webp": {
+    "mtime": 1785322726.4367406,
+    "ast_hash": "b4422c1d8f325680e2017edefbdcf637",
+    "semantic_hash": "b4422c1d8f325680e2017edefbdcf637"
+  },
+  "img/badge-mark-1024.webp": {
+    "mtime": 1785322726.6312068,
+    "ast_hash": "9e8562654cea6a1145efd828cf38370c",
+    "semantic_hash": "9e8562654cea6a1145efd828cf38370c"
+  },
+  "img/badge-mark-640.webp": {
+    "mtime": 1785322726.7128115,
+    "ast_hash": "780bfe262467b862b9543e0d74cb13c4",
+    "semantic_hash": "780bfe262467b862b9543e0d74cb13c4"
+  },
+  "img/breakroom-1536.webp": {
+    "mtime": 1785322726.89749,
+    "ast_hash": "45347ec36f0f16a537fe2c86163a1f24",
+    "semantic_hash": "45347ec36f0f16a537fe2c86163a1f24"
+  },
+  "img/breakroom-960.webp": {
+    "mtime": 1785322726.968124,
+    "ast_hash": "a675144f361a2401b9bd78056fae0de1",
+    "semantic_hash": "a675144f361a2401b9bd78056fae0de1"
+  },
+  "img/corridor-1536.webp": {
+    "mtime": 1785322727.1569793,
+    "ast_hash": "3ae86dfdfd1af395cc8cd95f5f976f7f",
+    "semantic_hash": "3ae86dfdfd1af395cc8cd95f5f976f7f"
+  },
+  "img/corridor-960.webp": {
+    "mtime": 1785322727.2329576,
+    "ast_hash": "df4b1d0149d24b2353f3c53778fa0fb2",
+    "semantic_hash": "df4b1d0149d24b2353f3c53778fa0fb2"
+  },
+  "img/egress-1536.webp": {
+    "mtime": 1785322727.430401,
+    "ast_hash": "adce640b1f00b61c34fb4aa277940148",
+    "semantic_hash": "adce640b1f00b61c34fb4aa277940148"
+  },
+  "img/egress-960.webp": {
+    "mtime": 1785322727.5070927,
+    "ast_hash": "2426daa1c48059a60d28281ac57234a3",
+    "semantic_hash": "2426daa1c48059a60d28281ac57234a3"
+  },
+  "img/floor-1536.webp": {
+    "mtime": 1785322727.7131548,
+    "ast_hash": "f1a00ace73e2e328a7e78294728c3204",
+    "semantic_hash": "f1a00ace73e2e328a7e78294728c3204"
+  },
+  "img/floor-960.webp": {
+    "mtime": 1785322727.7911668,
+    "ast_hash": "0411982660bc21817a99313015d8ce5a",
+    "semantic_hash": "0411982660bc21817a99313015d8ce5a"
+  },
+  "img/kier-1024.webp": {
+    "mtime": 1785322728.026701,
+    "ast_hash": "735053ce7d8fd316ea7874784afc65ad",
+    "semantic_hash": "735053ce7d8fd316ea7874784afc65ad"
+  },
+  "img/kier-640.webp": {
+    "mtime": 1785322728.1235137,
+    "ast_hash": "04c70eb102c8b22cd9d9c574f1077148",
+    "semantic_hash": "04c70eb102c8b22cd9d9c574f1077148"
+  },
+  "img/lift-1536.webp": {
+    "mtime": 1785322728.3188171,
+    "ast_hash": "67703a20056e753980a85dc071d58688",
+    "semantic_hash": "67703a20056e753980a85dc071d58688"
+  },
+  "img/lift-960.webp": {
+    "mtime": 1785322728.4092793,
+    "ast_hash": "bcf9424231095612a0384d8d52195c71",
+    "semantic_hash": "bcf9424231095612a0384d8d52195c71"
+  },
+  "img/src/atrium.png": {
+    "mtime": 1785317497.4062426,
+    "ast_hash": "f716e6b3724b89bb5b6f8d92bd3d9131",
+    "semantic_hash": "f716e6b3724b89bb5b6f8d92bd3d9131"
+  },
+  "img/src/badge-dylan.png": {
+    "mtime": 1785322699.705596,
+    "ast_hash": "4907b77d5362de5c164bb29df750aabb",
+    "semantic_hash": "4907b77d5362de5c164bb29df750aabb"
+  },
+  "img/src/badge-helly.png": {
+    "mtime": 1785318018.5851362,
+    "ast_hash": "5454173f7cc7cf5635b1f38f8caa7da3",
+    "semantic_hash": "5454173f7cc7cf5635b1f38f8caa7da3"
+  },
+  "img/src/badge-irving.png": {
+    "mtime": 1785318068.4659379,
+    "ast_hash": "58f9948a0e89fad2159ec0c1eee31495",
+    "semantic_hash": "58f9948a0e89fad2159ec0c1eee31495"
+  },
+  "img/src/badge-mark.png": {
+    "mtime": 1785317960.6521213,
+    "ast_hash": "c39320f9b43e471fca0a6e2c252abf96",
+    "semantic_hash": "c39320f9b43e471fca0a6e2c252abf96"
+  },
+  "img/src/breakroom.png": {
+    "mtime": 1785317761.949886,
+    "ast_hash": "60d76fdad1f55551fd4d80323a4c3d90",
+    "semantic_hash": "60d76fdad1f55551fd4d80323a4c3d90"
+  },
+  "img/src/corridor.png": {
+    "mtime": 1785317636.769706,
+    "ast_hash": "0c56c52fa806059dc6c28003b1693d2f",
+    "semantic_hash": "0c56c52fa806059dc6c28003b1693d2f"
+  },
+  "img/src/egress.png": {
+    "mtime": 1785317908.0230806,
+    "ast_hash": "077aa149597244db2c193c0b658bc615",
+    "semantic_hash": "077aa149597244db2c193c0b658bc615"
+  },
+  "img/src/floor.png": {
+    "mtime": 1785317699.5650754,
+    "ast_hash": "4f001456d309301c2f6e25cf48e00e96",
+    "semantic_hash": "4f001456d309301c2f6e25cf48e00e96"
+  },
+  "img/src/kier.png": {
+    "mtime": 1785320837.9490373,
+    "ast_hash": "8a3413653c354c0e4293f453a5c08434",
+    "semantic_hash": "8a3413653c354c0e4293f453a5c08434"
+  },
+  "img/src/lift.png": {
+    "mtime": 1785317548.0425556,
+    "ast_hash": "de2544b631ebe9eef08cae46252de8c9",
+    "semantic_hash": "de2544b631ebe9eef08cae46252de8c9"
+  }
+}
